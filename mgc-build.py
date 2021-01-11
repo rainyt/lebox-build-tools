@@ -633,12 +633,11 @@ class build_AndroidApkBuild:
 
     @staticmethod
     def build(zip):
-        if ((not sys_FileSystem.exists((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build"))) or (not sys_FileSystem.exists((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build/LeboxGame")))):
+        if ((not sys_FileSystem.exists((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build"))) or (not sys_FileSystem.exists((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build/app-debug")))):
             python_FileUtils.createDir((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build"))
-            Sys.command(((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/build") + "\nunzip ./LeboxGame.zip"))
-        if sys_FileSystem.exists((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build/__MACOSX")):
-            python_FileUtils.removeDic((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build/__MACOSX"))
-        Sys.command(((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/build/LeboxGame") + "\n./gradlew assembleDebug"))
+            Sys.command(((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/build") + "\njava -jar apktool.jar d app-debug.apk"))
+        sys_io_File.copy(zip,(HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build/app-debug/assets/1000025.zip"))
+        Sys.command(((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/build") + "\njava -jar apktool.jar b app-debug"))
 build_AndroidApkBuild._hx_class = build_AndroidApkBuild
 _hx_classes["build.AndroidApkBuild"] = build_AndroidApkBuild
 

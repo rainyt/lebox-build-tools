@@ -59,10 +59,10 @@ class Main {
 		Sys.setCwd(mgcdict);
 		Sys.command("zip -r ./1000025.zip ./* -r");
 		// 如果第三个参数是apk，则自动生成apk
-		if(Sys.args()[2] == "apk"){
+		// if(Sys.args()[2] == "apk"){
 			// 开始编译安卓(未完成)
 			// AndroidApkBuild.build(mgcdict + "/1000025.zip");
-		}
+		// }
 		trace("编译结束");
 	}
 
