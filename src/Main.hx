@@ -1,5 +1,6 @@
 package;
 
+import build.AndroidApkBuild;
 import build.MgcBuild;
 import build.JsBuild;
 import python.FileUtils;
@@ -11,6 +12,10 @@ import platform.Zygameui;
  * 梦工厂编译命令
  */
 class Main {
+
+	/**
+	 * 梦工厂编译工具目录
+	 */
 	public static var mgc_tools_dir:String;
 
 	public static var mgc_build_dir:String;
@@ -26,7 +31,7 @@ class Main {
 		mgc_build_dir = args[0];
 		if (args[1] != null) {
 			try{
-			platformBuild = Type.createInstance(Type.resolveClass("platform." + args[1].charAt(0).toUpperCase() + args[1].substr(1).toLowerCase()),[]);
+				platformBuild = Type.createInstance(Type.resolveClass("platform." + args[1].charAt(0).toUpperCase() + args[1].substr(1).toLowerCase()),[]);
 			}catch(e){
 				throw ("无效平台值："+args[1]);
 			}
@@ -53,6 +58,11 @@ class Main {
 		// 生成zip包
 		Sys.setCwd(mgcdict);
 		Sys.command("zip -r ./1000025.zip ./* -r");
+		// 如果第三个参数是apk，则自动生成apk
+		if(Sys.args()[2] == "apk"){
+			// 开始编译安卓(未完成)
+			// AndroidApkBuild.build(mgcdict + "/1000025.zip");
+		}
 		trace("编译结束");
 	}
 

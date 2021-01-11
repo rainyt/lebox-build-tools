@@ -142,8 +142,8 @@ class Main:
                 Main.platformBuild = Type.resolveClass((("platform." + HxOverrides.stringOrNull(("" if ((0 >= len(_this))) else _this[0]).upper())) + HxOverrides.stringOrNull(HxString.substr((args[1] if 1 < len(args) else None),1,None).lower())))(*[])
             except BaseException as _g:
                 raise haxe_Exception.thrown(("无效平台值：" + HxOverrides.stringOrNull((args[1] if 1 < len(args) else None))))
-        haxe_Log.trace(("工具目录：" + HxOverrides.stringOrNull(Main.mgc_tools_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 34, 'className': "Main", 'methodName': "main"}))
-        haxe_Log.trace(("梦工厂编译目录：" + HxOverrides.stringOrNull(Main.mgc_build_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 35, 'className': "Main", 'methodName': "main"}))
+        haxe_Log.trace(("工具目录：" + HxOverrides.stringOrNull(Main.mgc_tools_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 39, 'className': "Main", 'methodName': "main"}))
+        haxe_Log.trace(("梦工厂编译目录：" + HxOverrides.stringOrNull(Main.mgc_build_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 40, 'className': "Main", 'methodName': "main"}))
         if (not sys_FileSystem.exists(Main.mgc_build_dir)):
             raise haxe_Exception.thrown((HxOverrides.stringOrNull(Main.mgc_build_dir) + "目录不存在"))
         Main.mgcdict = (HxOverrides.stringOrNull(Main.mgc_build_dir) + "/mgc-dict")
@@ -165,11 +165,13 @@ class Main:
         build_MgcBuild.build(Main.mgc_tools_dir,Main.mgcdict)
         Sys.setCwd(Main.mgcdict)
         Sys.command("zip -r ./1000025.zip ./* -r")
-        haxe_Log.trace("编译结束",_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 56, 'className': "Main", 'methodName': "main"}))
+        if (python_internal_ArrayImpl._get(Sys.args(), 2) == "apk"):
+            build_AndroidApkBuild.build((HxOverrides.stringOrNull(Main.mgcdict) + "/1000025.zip"))
+        haxe_Log.trace("编译结束",_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 66, 'className': "Main", 'methodName': "main"}))
 
     @staticmethod
     def buildFile(file,buildto):
-        haxe_Log.trace(("编译：" + ("null" if file is None else file)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 64, 'className': "Main", 'methodName': "buildFile"}))
+        haxe_Log.trace(("编译：" + ("null" if file is None else file)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 74, 'className': "Main", 'methodName': "buildFile"}))
         if sys_FileSystem.isDirectory(file):
             files = sys_FileSystem.readDirectory(file)
             _g_current = 0
@@ -622,6 +624,23 @@ class Type:
             return ValueType.TUnknown
 Type._hx_class = Type
 _hx_classes["Type"] = Type
+
+
+class build_AndroidApkBuild:
+    _hx_class_name = "build.AndroidApkBuild"
+    __slots__ = ()
+    _hx_statics = ["build"]
+
+    @staticmethod
+    def build(zip):
+        if ((not sys_FileSystem.exists((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build"))) or (not sys_FileSystem.exists((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build/LeboxGame")))):
+            python_FileUtils.createDir((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build"))
+            Sys.command(((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/build") + "\nunzip ./LeboxGame.zip"))
+        if sys_FileSystem.exists((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build/__MACOSX")):
+            python_FileUtils.removeDic((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build/__MACOSX"))
+        Sys.command(((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/build/LeboxGame") + "\n./gradlew assembleDebug"))
+build_AndroidApkBuild._hx_class = build_AndroidApkBuild
+_hx_classes["build.AndroidApkBuild"] = build_AndroidApkBuild
 
 
 class python__KwArgs_KwArgs_Impl_:
