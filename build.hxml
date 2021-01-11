@@ -1,0 +1,4 @@
+--main Main
+--class-path src
+--python mgc-build.py
+--library zypython

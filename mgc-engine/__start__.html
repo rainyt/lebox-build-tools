@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <meta name=viewport content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1">
+    <script src="./__leto__/service-config.js" type="text/javascript"></script>
+			<script>
+				__path__ = '__start__'
+				var __wxAppData = {}
+				var __wxRoute
+				var __wxRouteBegin
+				var __wxConfig = __wxConfig__
+			</script>
+			<script src="./__leto__/config.js" type="text/javascript"></script>
+			<script src="../../../framework/script/view.js" type="text/javascript"></script>
+			
+			<script src="./__leto__/leto-audio-ios.js" type="text/javascript"></script>
+			<script src="./__leto__/leto-bug-fix.js" type="text/javascript"></script>
+    <style>
+        body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden
+        }
+
+        #myCanvas {
+            background-color: #000
+        }
+
+        .lock-screen {
+            height: 100%;
+            overflow: hidden;
+            width: 100%;
+            position: fixed;
+        }
+    </style>
+    
+    
+</head>
+
+<body class="lock-screen">
+    
+    
+    <canvas id="myCanvas" width="320" height="568" style="height: 100%; width: 100%;"></canvas>
+    <canvas id="sharedCanvas" width="320" height="568" style="height: 100%; width: 100%;"></canvas>
+    <script>
+		// set base url if setAppBaseUrl is available
+		if(mgc.setAppBaseUrl) {
+			mgc.setAppBaseUrl()
+		}
+
+		// get system info and save a global copy
+		if(!window.__letoSys) {
+			window.__letoSys = mgc.getSystemInfoSync()
+		}
+		window.__isAndroid = window.__letoSys.platform == 'android'
+
+		// get user info and save in a global copy
+		if(!window.__letoUserInfo) {
+			mgc.getUserInfo({
+				success: res => {
+					window.__letoUserInfo = res.userInfo
+				}
+			})
+		}
+
+		// save some element in global
+        window.letoDom = {
+			letoVersionLabel: document.getElementById('leto_version'),
+			gameAppVersionLabel: document.getElementById('game_app_version'),
+			wechatLabel: document.getElementById('customer_wechat'),
+			wechatTextLabel: document.getElementById('customer_wechat_text'),
+			loadingLayer: document.getElementById('loading_layer'),
+			landscapeLayer: document.getElementById('landscape_layer'),
+			landscapeCountdownLabel: document.getElementById('landscape_countdown'),
+			landscapeCountdown: 3
+        }
+
+		// init canvas size
+		var __letoTmp = {
+			cw: 0,
+			ch: 0,
+			rw: 0,
+			rh: 0,
+			canvasWidth: 0,
+			canvasHeight: 0,
+			tmp: 0,
+            firstFrameDelay: 500,
+            firstFrameExtra: 0
+		}
+		if(document && document.documentElement) {
+			__letoTmp.cw = document.documentElement.clientWidth
+			__letoTmp.ch = document.documentElement.clientHeight
+		}
+		__letoTmp.rw = window.__letoSys.realScreenWidth || 0
+		__letoTmp.rh = window.__letoSys.realScreenHeight || 0
+		var notchUsed = window.__letoSys.isNotchUsed || false
+		var landscape = __wxConfig__ && __wxConfig__.deviceOrientation == 'landscape'
+		if(landscape && __letoTmp.rw < __letoTmp.rh) {
+			__letoTmp.tmp = __letoTmp.rw
+			__letoTmp.rw = __letoTmp.rh
+			__letoTmp.rh = __letoTmp.tmp
+		}
+		if(__letoTmp.cw > 0 && __letoTmp.ch > 0) {
+			__letoTmp.canvasWidth = __letoTmp.cw
+			__letoTmp.canvasHeight = __letoTmp.ch
+		} else {
+			__letoTmp.canvasWidth = Math.max(__letoTmp.cw, window.innerWidth, notchUsed ? __letoTmp.rw : 0)
+			__letoTmp.canvasHeight = Math.max(__letoTmp.ch, window.innerHeight, notchUsed ? __letoTmp.rh : 0)
+		}
+		var canvas = document.getElementById('myCanvas')
+		var sharedCanvas = document.getElementById('sharedCanvas')
+		canvas.width = __letoTmp.canvasWidth
+		canvas.height = __letoTmp.canvasHeight
+		sharedCanvas.width = __letoTmp.canvasWidth
+		sharedCanvas.height = __letoTmp.canvasHeight
+		window.__innerWidth = __letoTmp.canvasWidth
+		window.__innerHeight = __letoTmp.canvasHeight
+
+        // add canvas as global
+        window.canvas = canvas
+        window.sharedCanvas = sharedCanvas
+
+        // set global Canvas constructor
+        window.Canvas = (function() {
+            var firstCanvas = true
+            return function() {
+                if(firstCanvas) {
+                    firstCanvas = false
+                    return canvas
+                }
+                var c = document.createElement('canvas')
+                c.width = __letoTmp.canvasWidth
+                c.height = __letoTmp.canvasHeight
+                return c
+            }
+        })()
+
+        // set game global same as window
+        window.GameGlobal = window
+        window.WebGLRenderingContext.prototype.wxSetContextAttributes = function() {
+            console.warn('开发者工具不支持 wxSetContextAttributes()')
+        }
+    </script>
+    	::JS::
+    <script>
+		function updateVersionLabels() {
+			if(mgc.getLetoVersionsSync) {
+				var v = mgc.getLetoVersionsSync()
+				window.letoDom.letoVersionLabel.textContent = `Leto版本: ${v.leto_version}`
+                if(mgc.getSDKMode() == 2) { // if js, don't show app version
+					window.letoDom.gameAppVersionLabel.textContent = `游戏版本: ${__wxConfig__.game_version || '1.0.0'}`
+                } else {
+					window.letoDom.gameAppVersionLabel.textContent = `游戏版本: ${__wxConfig__.game_version || '1.0.0'} App版本: ${v.app_version}`
+                }
+				if(v.customer_wechat) {
+					window.letoDom.wechatTextLabel.style.display = 'block'
+					window.letoDom.wechatLabel.textContent = `${v.customer_wechat}`
+                }
+			}
+		}
+
+		function hideLoading() {
+			if(window.letoDom.loadingLayer) {
+				window.letoDom.loadingLayer.style.display = 'none'
+			}
+		}
+
+		function checkLayaTimer() {
+			if(window.Laya.timer) {
+				if(window.Laya.timer.frameOnce) {
+					Laya.timer.frameOnce(1, this, () => {
+						setTimeout(() => {
+							mgc.triggerEventToNative('FirstFrameRendered', {})
+
+							// hide loading if not full sdk mode
+							if(mgc.getSDKMode && mgc.getSDKMode() != 0) {
+								hideLoading()
+							}
+						}, __letoTmp.firstFrameDelay + __letoTmp.firstFrameExtra)
+					})
+				} else {
+					setTimeout(() => {
+						mgc.triggerEventToNative('FirstFrameRendered', {})
+
+						// hide loading if not full sdk mode
+						if(mgc.getSDKMode && mgc.getSDKMode() != 0) {
+							hideLoading()
+						}
+					}, __letoTmp.firstFrameDelay + __letoTmp.firstFrameExtra)
+				}
+			} else {
+				setTimeout(() => {
+					checkLayaTimer()
+				}, 100)
+			}
+		}
+
+		// for egret, we remove canvas width and height style because egret will
+		// set canvas scale matrix
+		function fixCanvasForEgret(c) {
+			c.style.removeProperty('width')
+			c.style.removeProperty('height')
+			var transform = c.style.getPropertyValue('transform')
+			if(transform && transform.length > 0) {
+				var values = transform.substring(7, transform.length - 1).split(',')
+				if(values.length == 6) {
+					if(!window.__letoSys) {
+						window.__letoSys = mgc.getSystemInfoSync()
+					}
+					var screenWidth = window.__letoSys.screenWidth
+					var screenHeight = window.__letoSys.screenHeight
+					if(__wxConfig__ && __wxConfig__.deviceOrientation == 'landscape' && screenWidth < screenHeight) {
+						screenWidth = screenHeight
+					}
+					var scaleX = 1 / Number(values[0])
+					var scaleY = 1 / Number(values[3])
+					var ratio = Math.round(c.width / screenWidth)
+					if(ratio == 1) {
+						c.width *= scaleX
+						c.height *= scaleY
+					}
+				}
+			}
+		}
+
+		function checkEgretPlayer() {
+			if(window['player']) {
+				// trigger FirstFrameRendered for enter frame event
+				if(player.stage && player.stage.once) {
+					player.stage.once(egret.Event.ENTER_FRAME, () => {
+						setTimeout(() => {
+							mgc.triggerEventToNative('FirstFrameRendered', {})
+
+                            // hide loading if not full sdk mode
+							if(mgc.getSDKMode && mgc.getSDKMode() != 0) {
+								hideLoading()
+							}
+						}, __letoTmp.firstFrameDelay + __letoTmp.firstFrameExtra)
+					})
+				}
+
+				// for egret, we remove canvas width and height style because egret will
+				// set canvas scale matrix
+				fixCanvasForEgret(window.canvas)
+				fixCanvasForEgret(window.sharedCanvas)
+				if(window['egret'].updateAllScreens) {
+					window['egret'].updateAllScreens()
+				}
+			} else {
+				setTimeout(() => {
+					checkEgretPlayer()
+				}, 100)
+			}
+		}
+
+		function initForLaya() {
+			// for laya, trigger FirstFrameRendered after first frame
+			if(window.Laya) {
+				checkLayaTimer()
+			}
+		}
+
+		function initForCocos() {
+			// if cocos creator
+			if(window.cc) {
+				// we enable retina for android to resolve image blur bug.
+				// for cocos2d-js, there is only an EVENT_SHOW available, we can enable retina here
+				// and re-set design resolution
+				if(window.CocosEngine && window.CocosEngine.toLowerCase().startsWith('cocos2d-js')) {
+					var l = function() {
+						window.cc.view.enableRetina(true)
+						var size = cc.view.getDesignResolutionSize()
+						var policy = cc.view.getResolutionPolicy()
+						window.cc.view.setDesignResolutionSize(size.width, size.height, policy)
+						window.cc.eventManager.removeListener(l)
+					}
+					window.cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, l)
+				} else if(window.cc.game && window.cc.game.EVENT_GAME_INITED) {
+					window.cc.game.once(window.cc.game.EVENT_GAME_INITED, function() {
+						window.cc.view.enableRetina(true)
+					})
+				}
+
+				// to improve loading ui dismiss time, trigger FirstFrameRendered after first frame
+				if(window.cc.director && window.cc.director.once && window.cc.Director.EVENT_AFTER_DRAW) {
+					window.cc.director.once(window.cc.Director.EVENT_AFTER_DRAW, () => {
+						setTimeout(() => {
+							mgc.triggerEventToNative('FirstFrameRendered', {})
+
+							// hide loading if not full sdk mode
+							if(mgc.getSDKMode && mgc.getSDKMode() != 0) {
+								hideLoading()
+							}
+						}, __letoTmp.firstFrameDelay + __letoTmp.firstFrameExtra)
+					})
+				}
+			}
+		}
+
+		function initForEgret() {
+			// for egret, we check player until it is set
+			if(window['egret'] != null) {
+				checkEgretPlayer()
+			}
+		}
+
+		function initForOtherEngine() {
+			// if not engine we know, trigger first frame event at last
+			if(!window.cc && !window.Laya && !window.egret) {
+				setTimeout(() => {
+					mgc.triggerEventToNative('FirstFrameRendered', {})
+
+					// hide loading if not full sdk mode
+					if(mgc.getSDKMode && mgc.getSDKMode() != 0) {
+						hideLoading()
+					}
+				}, __letoTmp.firstFrameDelay + __letoTmp.firstFrameExtra)
+			}
+		}
+
+		function initForSDKMode() {
+			// if not full mode, update ui
+			// if full mode, hide js loading layer and menu bar
+			if(mgc.getSDKMode && mgc.getSDKMode() != 0) {
+				// update version labels
+				updateVersionLabels()
+
+				// set app id
+				if(__wxConfig__.game_id && mgc.setAppId) {
+					mgc.setAppId(__wxConfig__.game_id)
+				}
+			} else {
+				hideLoading()
+				mgc.hideLetoMenuBar && mgc.hideLetoMenuBar()
+			}
+		}
+
+		function showLandscapeHint() {
+			window.letoDom.landscapeLayer.style.display = 'flex'
+			setTimeout(() => {
+				landscapeCountdown()
+			}, 1000)
+		}
+
+		function landscapeCountdown() {
+			window.letoDom.landscapeCountdown--
+			if(window.letoDom.landscapeCountdown <= 0) {
+				window.letoDom.landscapeLayer.style.display = 'none'
+			} else {
+				window.letoDom.landscapeCountdownLabel.textContent = `${window.letoDom.landscapeCountdown}`
+				setTimeout(() => {
+					landscapeCountdown()
+				}, 1000)
+			}
+		}
+
+        function __main__() {
+        	// import some js
+			require('game.js')
+			
+			require('__leto__/leto-audio-ios.js')
+			require('__leto__/leto-bug-fix.js')
+
+			// update first frame delay for some model
+			if(window.__isAndroid) {
+				// for meizu, enlarge delay
+				if(mgc.isMeizuSync()) {
+					if(mgc.ext_compareVersion(window.__letoSys.version, '7.0') <= 0) {
+						__letoTmp.firstFrameDelay = 1200
+					} else {
+						__letoTmp.firstFrameDelay = 1000
+					}
+				}
+			}
+
+			// for sdk mode
+            initForSDKMode()
+
+			// engine process
+            initForLaya()
+            initForCocos()
+			initForEgret()
+            initForOtherEngine()
+
+			// show landscape hint or not, only when js/ad mode
+			if(mgc.getSDKMode &&
+                mgc.getSDKMode() != 0 &&
+				window.__wxConfig__ &&
+				window.__wxConfig__.deviceOrientation == 'landscape' &&
+				window.innerWidth < window.innerHeight) {
+				showLandscapeHint()
+			}
+
+			// report for js mode
+            if(mgc.getSDKMode && mgc.getSDKMode() == 2) {
+            	if(mgc.reportH5GameCenterGameStarted) {
+            		mgc.reportH5GameCenterGameStarted(window.__wxConfig__.game_id || '')
+                }
+            }
+        }
+
+		// for js mode, delay for a little while so that indexed db can be initialized
+		if(mgc.getSDKMode && mgc.getSDKMode() == 2) {
+			setTimeout(() => {
+				__main__()
+			}, 100)
+		} else {
+			__main__()
+		}
+    </script>
+
+    
+</body>
+
+</html>
