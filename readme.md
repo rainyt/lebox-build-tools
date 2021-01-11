@@ -8,3 +8,4 @@ python3 mgc-build.py 编译文件夹 引擎平台
 ```
 引擎平台已支持：
 - cocos：兼容2.1.4、2.4.3版本。
+- zygameui：兼容使用zygameui框架开发的openfl游戏。

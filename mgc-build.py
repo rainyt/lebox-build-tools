@@ -7,12 +7,15 @@ import math as Math
 from os import path as python_lib_os_Path
 import inspect as python_lib_Inspect
 import os as python_lib_Os
+from datetime import datetime as python_lib_datetime_Datetime
+from datetime import timezone as python_lib_datetime_Timezone
 import sys as python_lib_Sys
 import traceback as python_lib_Traceback
 import builtins as python_lib_Builtins
 import functools as python_lib_Functools
 import shutil as python_lib_Shutil
 import subprocess as python_lib_Subprocess
+from io import StringIO as python_lib_io_StringIO
 
 
 class _hx_AnonObject:
@@ -62,10 +65,49 @@ class Enum:
         else:
             return self.tag + '(' + (', '.join(str(v) for v in self.params)) + ')'
 
+Enum._hx_class = Enum
 _hx_classes["Enum"] = Enum
 
 
 class Class: pass
+
+
+class Date:
+    _hx_class_name = "Date"
+    __slots__ = ("date", "dateUTC")
+    _hx_fields = ["date", "dateUTC"]
+    _hx_methods = ["toString"]
+    _hx_statics = ["now", "makeLocal"]
+
+    def __init__(self,year,month,day,hour,_hx_min,sec):
+        self.dateUTC = None
+        if (year < python_lib_datetime_Datetime.min.year):
+            year = python_lib_datetime_Datetime.min.year
+        if (day == 0):
+            day = 1
+        self.date = Date.makeLocal(python_lib_datetime_Datetime(year,(month + 1),day,hour,_hx_min,sec,0))
+        self.dateUTC = self.date.astimezone(python_lib_datetime_Timezone.utc)
+
+    def toString(self):
+        return self.date.strftime("%Y-%m-%d %H:%M:%S")
+
+    @staticmethod
+    def now():
+        d = Date(2000,0,1,0,0,0)
+        d.date = Date.makeLocal(python_lib_datetime_Datetime.now())
+        d.dateUTC = d.date.astimezone(python_lib_datetime_Timezone.utc)
+        return d
+
+    @staticmethod
+    def makeLocal(date):
+        try:
+            return date.astimezone()
+        except BaseException as _g:
+            tzinfo = python_lib_datetime_Datetime.now(python_lib_datetime_Timezone.utc).astimezone().tzinfo
+            return date.replace(**python__KwArgs_KwArgs_Impl_.fromT(_hx_AnonObject({'tzinfo': tzinfo})))
+
+Date._hx_class = Date
+_hx_classes["Date"] = Date
 
 
 class Main:
@@ -100,8 +142,8 @@ class Main:
                 Main.platformBuild = Type.resolveClass((("platform." + HxOverrides.stringOrNull(("" if ((0 >= len(_this))) else _this[0]).upper())) + HxOverrides.stringOrNull(HxString.substr((args[1] if 1 < len(args) else None),1,None).lower())))(*[])
             except BaseException as _g:
                 raise haxe_Exception.thrown(("无效平台值：" + HxOverrides.stringOrNull((args[1] if 1 < len(args) else None))))
-        haxe_Log.trace(("工具目录：" + HxOverrides.stringOrNull(Main.mgc_tools_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 35, 'className': "Main", 'methodName': "main"}))
-        haxe_Log.trace(("梦工厂编译目录：" + HxOverrides.stringOrNull(Main.mgc_build_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 36, 'className': "Main", 'methodName': "main"}))
+        haxe_Log.trace(("工具目录：" + HxOverrides.stringOrNull(Main.mgc_tools_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 34, 'className': "Main", 'methodName': "main"}))
+        haxe_Log.trace(("梦工厂编译目录：" + HxOverrides.stringOrNull(Main.mgc_build_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 35, 'className': "Main", 'methodName': "main"}))
         if (not sys_FileSystem.exists(Main.mgc_build_dir)):
             raise haxe_Exception.thrown((HxOverrides.stringOrNull(Main.mgc_build_dir) + "目录不存在"))
         Main.mgcdict = (HxOverrides.stringOrNull(Main.mgc_build_dir) + "/mgc-dict")
@@ -123,11 +165,11 @@ class Main:
         build_MgcBuild.build(Main.mgc_tools_dir,Main.mgcdict)
         Sys.setCwd(Main.mgcdict)
         Sys.command("zip -r ./1000025.zip ./* -r")
-        haxe_Log.trace("编译结束",_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 57, 'className': "Main", 'methodName': "main"}))
+        haxe_Log.trace("编译结束",_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 56, 'className': "Main", 'methodName': "main"}))
 
     @staticmethod
     def buildFile(file,buildto):
-        haxe_Log.trace(("编译：" + ("null" if file is None else file)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 65, 'className': "Main", 'methodName': "buildFile"}))
+        haxe_Log.trace(("编译：" + ("null" if file is None else file)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 64, 'className': "Main", 'methodName': "buildFile"}))
         if sys_FileSystem.isDirectory(file):
             files = sys_FileSystem.readDirectory(file)
             _g_current = 0
@@ -150,21 +192,43 @@ class Main:
             check = file.find(".", startLeft, len(file))
             pos = (check if (((check > i) and ((check <= startIndex1)))) else i)
         ext = HxString.substr(file,(pos + 1),None)
+        fileName = StringTools.replace(file,(HxOverrides.stringOrNull(Main.mgc_build_dir) + "/"),"")
+        _this = build_MgcBuild.packageFiles
+        _this.append(fileName)
         if (ext == "js"):
             build_JsBuild.build(file,buildto,Main.mgc_build_dir)
         else:
             python_FileUtils.copyFile(file,buildto)
+Main._hx_class = Main
 _hx_classes["Main"] = Main
 
 
 class Reflect:
     _hx_class_name = "Reflect"
     __slots__ = ()
-    _hx_statics = ["field"]
+    _hx_statics = ["field", "setProperty", "isFunction"]
 
     @staticmethod
     def field(o,field):
         return python_Boot.field(o,field)
+
+    @staticmethod
+    def setProperty(o,field,value):
+        field1 = (("_hx_" + field) if ((field in python_Boot.keywords)) else (("_hx_" + field) if (((((len(field) > 2) and ((ord(field[0]) == 95))) and ((ord(field[1]) == 95))) and ((ord(field[(len(field) - 1)]) != 95)))) else field))
+        if isinstance(o,_hx_AnonObject):
+            setattr(o,field1,value)
+        elif hasattr(o,("set_" + ("null" if field1 is None else field1))):
+            getattr(o,("set_" + ("null" if field1 is None else field1)))(value)
+        else:
+            setattr(o,field1,value)
+
+    @staticmethod
+    def isFunction(f):
+        if (not ((python_lib_Inspect.isfunction(f) or python_lib_Inspect.ismethod(f)))):
+            return python_Boot.hasField(f,"func_code")
+        else:
+            return True
+Reflect._hx_class = Reflect
 _hx_classes["Reflect"] = Reflect
 
 
@@ -260,6 +324,7 @@ class Std:
     @staticmethod
     def string(s):
         return python_Boot.toString1(s,"")
+Std._hx_class = Std
 _hx_classes["Std"] = Std
 
 
@@ -275,15 +340,49 @@ class Bool: pass
 class Dynamic: pass
 
 
+class StringBuf:
+    _hx_class_name = "StringBuf"
+    __slots__ = ("b",)
+    _hx_fields = ["b"]
+    _hx_methods = ["get_length"]
+
+    def __init__(self):
+        self.b = python_lib_io_StringIO()
+
+    def get_length(self):
+        pos = self.b.tell()
+        self.b.seek(0,2)
+        _hx_len = self.b.tell()
+        self.b.seek(pos,0)
+        return _hx_len
+
+StringBuf._hx_class = StringBuf
+_hx_classes["StringBuf"] = StringBuf
+
+
 class StringTools:
     _hx_class_name = "StringTools"
     __slots__ = ()
-    _hx_statics = ["replace"]
+    _hx_statics = ["lpad", "replace"]
+
+    @staticmethod
+    def lpad(s,c,l):
+        if (len(c) <= 0):
+            return s
+        buf = StringBuf()
+        l = (l - len(s))
+        while (buf.get_length() < l):
+            s1 = Std.string(c)
+            buf.b.write(s1)
+        s1 = Std.string(s)
+        buf.b.write(s1)
+        return buf.b.getvalue()
 
     @staticmethod
     def replace(s,sub,by):
         _this = (list(s) if ((sub == "")) else s.split(sub))
         return by.join([python_Boot.toString1(x1,'') for x1 in _this])
+StringTools._hx_class = StringTools
 _hx_classes["StringTools"] = StringTools
 
 
@@ -319,7 +418,32 @@ class sys_FileSystem:
     @staticmethod
     def readDirectory(path):
         return python_lib_Os.listdir(path)
+sys_FileSystem._hx_class = sys_FileSystem
 _hx_classes["sys.FileSystem"] = sys_FileSystem
+
+
+class haxe_IMap:
+    _hx_class_name = "haxe.IMap"
+    __slots__ = ()
+haxe_IMap._hx_class = haxe_IMap
+_hx_classes["haxe.IMap"] = haxe_IMap
+
+
+class haxe_ds_StringMap:
+    _hx_class_name = "haxe.ds.StringMap"
+    __slots__ = ("h",)
+    _hx_fields = ["h"]
+    _hx_methods = ["keys"]
+    _hx_interfaces = [haxe_IMap]
+
+    def __init__(self):
+        self.h = dict()
+
+    def keys(self):
+        return python_HaxeIterator(iter(self.h.keys()))
+
+haxe_ds_StringMap._hx_class = haxe_ds_StringMap
+_hx_classes["haxe.ds.StringMap"] = haxe_ds_StringMap
 
 
 class python_HaxeIterator:
@@ -354,6 +478,7 @@ class python_HaxeIterator:
             self.checked = True
         return self.has
 
+python_HaxeIterator._hx_class = python_HaxeIterator
 _hx_classes["python.HaxeIterator"] = python_HaxeIterator
 
 
@@ -405,13 +530,52 @@ class Sys:
     @staticmethod
     def programPath():
         return Sys._programPath
+Sys._hx_class = Sys
 _hx_classes["Sys"] = Sys
+
+class ValueType(Enum):
+    __slots__ = ()
+    _hx_class_name = "ValueType"
+    _hx_constructs = ["TNull", "TInt", "TFloat", "TBool", "TObject", "TFunction", "TClass", "TEnum", "TUnknown"]
+
+    @staticmethod
+    def TClass(c):
+        return ValueType("TClass", 6, (c,))
+
+    @staticmethod
+    def TEnum(e):
+        return ValueType("TEnum", 7, (e,))
+ValueType.TNull = ValueType("TNull", 0, ())
+ValueType.TInt = ValueType("TInt", 1, ())
+ValueType.TFloat = ValueType("TFloat", 2, ())
+ValueType.TBool = ValueType("TBool", 3, ())
+ValueType.TObject = ValueType("TObject", 4, ())
+ValueType.TFunction = ValueType("TFunction", 5, ())
+ValueType.TUnknown = ValueType("TUnknown", 8, ())
+ValueType._hx_class = ValueType
+_hx_classes["ValueType"] = ValueType
 
 
 class Type:
     _hx_class_name = "Type"
     __slots__ = ()
-    _hx_statics = ["resolveClass"]
+    _hx_statics = ["getClass", "resolveClass", "typeof"]
+
+    @staticmethod
+    def getClass(o):
+        if (o is None):
+            return None
+        o1 = o
+        if ((o1 is not None) and ((HxOverrides.eq(o1,str) or python_lib_Inspect.isclass(o1)))):
+            return None
+        if isinstance(o,_hx_AnonObject):
+            return None
+        if hasattr(o,"_hx_class"):
+            return o._hx_class
+        if hasattr(o,"__class__"):
+            return o.__class__
+        else:
+            return None
 
     @staticmethod
     def resolveClass(name):
@@ -431,66 +595,46 @@ class Type:
         if tmp:
             return None
         return cl
+
+    @staticmethod
+    def typeof(v):
+        if (v is None):
+            return ValueType.TNull
+        elif isinstance(v,bool):
+            return ValueType.TBool
+        elif isinstance(v,int):
+            return ValueType.TInt
+        elif isinstance(v,float):
+            return ValueType.TFloat
+        elif isinstance(v,str):
+            return ValueType.TClass(str)
+        elif isinstance(v,list):
+            return ValueType.TClass(list)
+        elif (isinstance(v,_hx_AnonObject) or python_lib_Inspect.isclass(v)):
+            return ValueType.TObject
+        elif isinstance(v,Enum):
+            return ValueType.TEnum(v.__class__)
+        elif (isinstance(v,type) or hasattr(v,"_hx_class")):
+            return ValueType.TClass(v.__class__)
+        elif callable(v):
+            return ValueType.TFunction
+        else:
+            return ValueType.TUnknown
+Type._hx_class = Type
 _hx_classes["Type"] = Type
 
 
-class build_JsBuild:
-    _hx_class_name = "build.JsBuild"
+class python__KwArgs_KwArgs_Impl_:
+    _hx_class_name = "python._KwArgs.KwArgs_Impl_"
     __slots__ = ()
-    _hx_statics = ["jsmap", "build"]
+    _hx_statics = ["fromT"]
 
     @staticmethod
-    def build(file,buildto,root):
-        fileName = StringTools.replace(file,(("null" if root is None else root) + "/"),"")
-        _this = build_JsBuild.jsmap
-        _this.append((("<script src=\"" + ("null" if fileName is None else fileName)) + "?m=8c7025\" type=\"text/javascript\"></script>"))
-        data = (Main.platformBuild.build(file,root) if ((Main.platformBuild is not None)) else sys_io_File.getContent(file))
-        if (data is None):
-            data = sys_io_File.getContent(file)
-        startIndex1 = None
-        _hx_len = None
-        if (startIndex1 is None):
-            _hx_len = buildto.rfind("/", 0, len(buildto))
-        else:
-            i = buildto.rfind("/", 0, (startIndex1 + 1))
-            startLeft = (max(0,((startIndex1 + 1) - len("/"))) if ((i == -1)) else (i + 1))
-            check = buildto.find("/", startLeft, len(buildto))
-            _hx_len = (check if (((check > i) and ((check <= startIndex1)))) else i)
-        dir = HxString.substr(buildto,0,_hx_len)
-        if (not sys_FileSystem.exists(dir)):
-            python_FileUtils.createDir(dir)
-        sys_io_File.saveContent(buildto,(((("define(\"" + ("null" if fileName is None else fileName)) + "\", function(require, module, exports, process) {\n") + ("null" if data is None else data)) + "\n})"))
-_hx_classes["build.JsBuild"] = build_JsBuild
-
-
-class build_JsBuildBase:
-    _hx_class_name = "build.JsBuildBase"
-    __slots__ = ()
-    _hx_methods = ["build"]
-
-    def __init__(self):
-        pass
-
-    def build(self,file,root):
-        return None
-
-_hx_classes["build.JsBuildBase"] = build_JsBuildBase
-
-
-class build_MgcBuild:
-    _hx_class_name = "build.MgcBuild"
-    __slots__ = ()
-    _hx_statics = ["build"]
-
-    @staticmethod
-    def build(tools,buildgo):
-        mgc = (("null" if tools is None else tools) + "/mgc-engine")
-        tmp = sys_io_File.getContent((("null" if mgc is None else mgc) + "/__start__.html"))
-        _this = build_JsBuild.jsmap
-        sys_io_File.saveContent((("null" if buildgo is None else buildgo) + "/__start__.html"),StringTools.replace(tmp,"::JS::","\n".join([python_Boot.toString1(x1,'') for x1 in _this])))
-        sys_io_File.copy((("null" if mgc is None else mgc) + "/service.html"),(("null" if buildgo is None else buildgo) + "/service.html"))
-        python_FileUtils.copyDic((("null" if mgc is None else mgc) + "/__leto__"),buildgo)
-_hx_classes["build.MgcBuild"] = build_MgcBuild
+    def fromT(d):
+        this1 = python_Lib.anonAsDict(d)
+        return this1
+python__KwArgs_KwArgs_Impl_._hx_class = python__KwArgs_KwArgs_Impl_
+_hx_classes["python._KwArgs.KwArgs_Impl_"] = python__KwArgs_KwArgs_Impl_
 
 
 class haxe_Exception(Exception):
@@ -547,196 +691,14 @@ class haxe_Exception(Exception):
             e._hx___skipStack = (e._hx___skipStack + 1)
             return e
 
+haxe_Exception._hx_class = haxe_Exception
 _hx_classes["haxe.Exception"] = haxe_Exception
-
-
-class haxe_Log:
-    _hx_class_name = "haxe.Log"
-    __slots__ = ()
-    _hx_statics = ["formatOutput", "trace"]
-
-    @staticmethod
-    def formatOutput(v,infos):
-        _hx_str = Std.string(v)
-        if (infos is None):
-            return _hx_str
-        pstr = ((HxOverrides.stringOrNull(infos.fileName) + ":") + Std.string(infos.lineNumber))
-        if (Reflect.field(infos,"customParams") is not None):
-            _g = 0
-            _g1 = Reflect.field(infos,"customParams")
-            while (_g < len(_g1)):
-                v = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
-                _g = (_g + 1)
-                _hx_str = (("null" if _hx_str is None else _hx_str) + ((", " + Std.string(v))))
-        return ((("null" if pstr is None else pstr) + ": ") + ("null" if _hx_str is None else _hx_str))
-
-    @staticmethod
-    def trace(v,infos = None):
-        _hx_str = haxe_Log.formatOutput(v,infos)
-        str1 = Std.string(_hx_str)
-        python_Lib.printString((("" + ("null" if str1 is None else str1)) + HxOverrides.stringOrNull(python_Lib.lineEnd)))
-_hx_classes["haxe.Log"] = haxe_Log
-
-
-class haxe_NativeStackTrace:
-    _hx_class_name = "haxe.NativeStackTrace"
-    __slots__ = ()
-    _hx_statics = ["saveStack", "exceptionStack"]
-
-    @staticmethod
-    def saveStack(exception):
-        pass
-
-    @staticmethod
-    def exceptionStack():
-        exc = python_lib_Sys.exc_info()
-        if (exc[2] is not None):
-            infos = python_lib_Traceback.extract_tb(exc[2])
-            infos.reverse()
-            return infos
-        else:
-            return []
-_hx_classes["haxe.NativeStackTrace"] = haxe_NativeStackTrace
-
-
-class haxe_ValueException(haxe_Exception):
-    _hx_class_name = "haxe.ValueException"
-    __slots__ = ("value",)
-    _hx_fields = ["value"]
-    _hx_methods = ["unwrap"]
-    _hx_statics = []
-    _hx_interfaces = []
-    _hx_super = haxe_Exception
-
-
-    def __init__(self,value,previous = None,native = None):
-        self.value = None
-        super().__init__(Std.string(value),previous,native)
-        self.value = value
-
-    def unwrap(self):
-        return self.value
-
-_hx_classes["haxe.ValueException"] = haxe_ValueException
-
-
-class haxe_iterators_ArrayIterator:
-    _hx_class_name = "haxe.iterators.ArrayIterator"
-    __slots__ = ("array", "current")
-    _hx_fields = ["array", "current"]
-    _hx_methods = ["hasNext", "next"]
-
-    def __init__(self,array):
-        self.current = 0
-        self.array = array
-
-    def hasNext(self):
-        return (self.current < len(self.array))
-
-    def next(self):
-        def _hx_local_3():
-            def _hx_local_2():
-                _hx_local_0 = self
-                _hx_local_1 = _hx_local_0.current
-                _hx_local_0.current = (_hx_local_1 + 1)
-                return _hx_local_1
-            return python_internal_ArrayImpl._get(self.array, _hx_local_2())
-        return _hx_local_3()
-
-_hx_classes["haxe.iterators.ArrayIterator"] = haxe_iterators_ArrayIterator
-
-
-class haxe_iterators_ArrayKeyValueIterator:
-    _hx_class_name = "haxe.iterators.ArrayKeyValueIterator"
-    __slots__ = ("current", "array")
-    _hx_fields = ["current", "array"]
-    _hx_methods = ["hasNext", "next"]
-
-    def __init__(self,array):
-        self.current = 0
-        self.array = array
-
-    def hasNext(self):
-        return (self.current < len(self.array))
-
-    def next(self):
-        def _hx_local_3():
-            def _hx_local_2():
-                _hx_local_0 = self
-                _hx_local_1 = _hx_local_0.current
-                _hx_local_0.current = (_hx_local_1 + 1)
-                return _hx_local_1
-            return _hx_AnonObject({'value': python_internal_ArrayImpl._get(self.array, self.current), 'key': _hx_local_2()})
-        return _hx_local_3()
-
-_hx_classes["haxe.iterators.ArrayKeyValueIterator"] = haxe_iterators_ArrayKeyValueIterator
-
-
-class platform_Cocos(build_JsBuildBase):
-    _hx_class_name = "platform.Cocos"
-    __slots__ = ()
-    _hx_fields = []
-    _hx_methods = ["build"]
-    _hx_statics = []
-    _hx_interfaces = []
-    _hx_super = build_JsBuildBase
-
-
-    def __init__(self):
-        super().__init__()
-
-    def build(self,file,root):
-        super().build(file,root)
-        data = sys_io_File.getContent(file)
-        startIndex = None
-        if (((file.find("cocos2d-js-min.js") if ((startIndex is None)) else HxString.indexOfImpl(file,"cocos2d-js-min.js",startIndex))) != -1):
-            data = StringTools.replace(data,"wx.onAudioInterruptionBegin","window.onAudioInterruptionBegin")
-            data = StringTools.replace(data,"wx.onAudioInterruptionEnd","window.onAudioInterruptionBegin")
-            return data
-        else:
-            startIndex = None
-            if (((file.find("weapp-adapter/index.js") if ((startIndex is None)) else HxString.indexOfImpl(file,"weapp-adapter/index.js",startIndex))) != -1):
-                return ""
-            else:
-                startIndex = None
-                if (((file.find("adapter-min.js") if ((startIndex is None)) else HxString.indexOfImpl(file,"adapter-min.js",startIndex))) != -1):
-                    return sys_io_File.getContent((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/game-engine/cocos/2.4.x/adapter-min.js"))
-        return None
-
-_hx_classes["platform.Cocos"] = platform_Cocos
-
-
-class platform_Zygameui(build_JsBuildBase):
-    _hx_class_name = "platform.Zygameui"
-    __slots__ = ()
-    _hx_fields = []
-    _hx_methods = ["build"]
-    _hx_statics = []
-    _hx_interfaces = []
-    _hx_super = build_JsBuildBase
-
-
-    def __init__(self):
-        super().__init__()
-
-    def build(self,file,root):
-        _hx_str = (("null" if root is None else root) + "/game.js")
-        startIndex = None
-        if (((file.find(_hx_str) if ((startIndex is None)) else HxString.indexOfImpl(file,_hx_str,startIndex))) != -1):
-            return sys_io_File.getContent((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/game-engine/zygameui-openfl/game.js"))
-        else:
-            startIndex = None
-            if (((file.find("zygameui-dom.js") if ((startIndex is None)) else HxString.indexOfImpl(file,"zygameui-dom.js",startIndex))) != -1):
-                return sys_io_File.getContent((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/game-engine/zygameui-openfl/zygameui-mgc-dom.js"))
-        return super().build(file,root)
-
-_hx_classes["platform.Zygameui"] = platform_Zygameui
 
 
 class python_Boot:
     _hx_class_name = "python.Boot"
     __slots__ = ()
-    _hx_statics = ["keywords", "toString1", "fields", "simpleField", "field", "getInstanceFields", "getSuperClass", "getClassFields", "prefixLength", "unhandleKeywords"]
+    _hx_statics = ["keywords", "toString1", "fields", "simpleField", "hasField", "field", "getInstanceFields", "getSuperClass", "getClassFields", "prefixLength", "unhandleKeywords"]
 
     @staticmethod
     def toString1(o,s):
@@ -897,6 +859,12 @@ class python_Boot:
             return getattr(o,field1)
         else:
             return None
+
+    @staticmethod
+    def hasField(o,field):
+        if isinstance(o,_hx_AnonObject):
+            return o._hx_hasattr(field)
+        return hasattr(o,(("_hx_" + field) if ((field in python_Boot.keywords)) else (("_hx_" + field) if (((((len(field) > 2) and ((ord(field[0]) == 95))) and ((ord(field[1]) == 95))) and ((ord(field[(len(field) - 1)]) != 95)))) else field)))
 
     @staticmethod
     def field(o,field):
@@ -1144,130 +1112,30 @@ class python_Boot:
             if (real in python_Boot.keywords):
                 return real
         return name
+python_Boot._hx_class = python_Boot
 _hx_classes["python.Boot"] = python_Boot
 
 
-class python_FileUtils:
-    _hx_class_name = "python.FileUtils"
-    __slots__ = ()
-    _hx_statics = ["createDir", "copyFile", "copyDic", "getIsIgone", "removeDic", "removeNoneDic"]
-
-    @staticmethod
-    def createDir(dir):
-        if (not sys_FileSystem.exists(dir)):
-            sys_FileSystem.createDirectory(dir)
-
-    @staticmethod
-    def copyFile(file,copyTo):
-        if (not sys_FileSystem.exists(file)):
-            haxe_Log.trace(("copyDic 路径不存在：" + ("null" if file is None else file)),_hx_AnonObject({'fileName': "python/FileUtils.hx", 'lineNumber': 19, 'className': "python.FileUtils", 'methodName': "copyFile"}))
-            return
-        startIndex = None
-        _hx_len = None
-        if (startIndex is None):
-            _hx_len = copyTo.rfind("/", 0, len(copyTo))
-        else:
-            i = copyTo.rfind("/", 0, (startIndex + 1))
-            startLeft = (max(0,((startIndex + 1) - len("/"))) if ((i == -1)) else (i + 1))
-            check = copyTo.find("/", startLeft, len(copyTo))
-            _hx_len = (check if (((check > i) and ((check <= startIndex)))) else i)
-        dir = HxString.substr(copyTo,0,_hx_len)
-        if (not sys_FileSystem.exists(dir)):
-            sys_FileSystem.createDirectory(dir)
-        if (sys_FileSystem.exists(copyTo) and (not sys_FileSystem.isDirectory(copyTo))):
-            sys_FileSystem.deleteFile(copyTo)
-        sys_io_File.copy(file,copyTo)
-
-    @staticmethod
-    def copyDic(dic,copyTo,igone = None):
-        if (not sys_FileSystem.exists(dic)):
-            haxe_Log.trace(("copyDic 路径不存在：" + ("null" if dic is None else dic)),_hx_AnonObject({'fileName': "python/FileUtils.hx", 'lineNumber': 41, 'className': "python.FileUtils", 'methodName': "copyDic"}))
-            return
-        startIndex = None
-        pos = None
-        if (startIndex is None):
-            pos = dic.rfind("/", 0, len(dic))
-        else:
-            i = dic.rfind("/", 0, (startIndex + 1))
-            startLeft = (max(0,((startIndex + 1) - len("/"))) if ((i == -1)) else (i + 1))
-            check = dic.find("/", startLeft, len(dic))
-            pos = (check if (((check > i) and ((check <= startIndex)))) else i)
-        dicName = HxString.substr(dic,(pos + 1),None)
-        sys_FileSystem.createDirectory(((("null" if copyTo is None else copyTo) + "/") + ("null" if dicName is None else dicName)))
-        _hx_list = sys_FileSystem.readDirectory(dic)
-        _g = 0
-        while (_g < len(_hx_list)):
-            file = (_hx_list[_g] if _g >= 0 and _g < len(_hx_list) else None)
-            _g = (_g + 1)
-            file2 = ((("null" if dic is None else dic) + "/") + ("null" if file is None else file))
-            if sys_FileSystem.isDirectory(file2):
-                python_FileUtils.copyDic(file2,((("null" if copyTo is None else copyTo) + "/") + ("null" if dicName is None else dicName)),igone)
-            elif ((igone is None) or (not python_FileUtils.getIsIgone(file,igone))):
-                try:
-                    sys_io_File.copy(file2,((("null" if copyTo is None else copyTo) + "/") + ("null" if dicName is None else dicName)))
-                except BaseException as _g1:
-                    e = haxe_Exception.caught(_g1).unwrap()
-                    haxe_Log.trace(("Warring:" + ("null" if file2 is None else file2)),_hx_AnonObject({'fileName': "python/FileUtils.hx", 'lineNumber': 63, 'className': "python.FileUtils", 'methodName': "copyDic", 'customParams': [e]}))
-
-    @staticmethod
-    def getIsIgone(file,igone):
-        _g = 0
-        while (_g < len(igone)):
-            i = (igone[_g] if _g >= 0 and _g < len(igone) else None)
-            _g = (_g + 1)
-            startIndex = None
-            if (((file.find(i) if ((startIndex is None)) else HxString.indexOfImpl(file,i,startIndex))) != -1):
-                return True
-        return False
-
-    @staticmethod
-    def removeDic(dic):
-        if (not sys_FileSystem.exists(dic)):
-            return
-        _hx_list = sys_FileSystem.readDirectory(dic)
-        _g = 0
-        while (_g < len(_hx_list)):
-            file = (_hx_list[_g] if _g >= 0 and _g < len(_hx_list) else None)
-            _g = (_g + 1)
-            file = ((("null" if dic is None else dic) + "/") + ("null" if file is None else file))
-            if sys_FileSystem.isDirectory(file):
-                python_FileUtils.removeDic(file)
-            else:
-                sys_FileSystem.deleteFile(file)
-        sys_FileSystem.deleteDirectory(dic)
-
-    @staticmethod
-    def removeNoneDic(dic):
-        if (not sys_FileSystem.exists(dic)):
-            return False
-        isCanDelDic = True
-        _hx_list = sys_FileSystem.readDirectory(dic)
-        _g = 0
-        while (_g < len(_hx_list)):
-            file = (_hx_list[_g] if _g >= 0 and _g < len(_hx_list) else None)
-            _g = (_g + 1)
-            file = ((("null" if dic is None else dic) + "/") + ("null" if file is None else file))
-            if sys_FileSystem.isDirectory(file):
-                if (not python_FileUtils.removeNoneDic(file)):
-                    isCanDelDic = False
-            else:
-                isCanDelDic = False
-        if isCanDelDic:
-            sys_FileSystem.deleteDirectory(dic)
-        return isCanDelDic
-_hx_classes["python.FileUtils"] = python_FileUtils
+class haxe_ValueException(haxe_Exception):
+    _hx_class_name = "haxe.ValueException"
+    __slots__ = ("value",)
+    _hx_fields = ["value"]
+    _hx_methods = ["unwrap"]
+    _hx_statics = []
+    _hx_interfaces = []
+    _hx_super = haxe_Exception
 
 
-class python__KwArgs_KwArgs_Impl_:
-    _hx_class_name = "python._KwArgs.KwArgs_Impl_"
-    __slots__ = ()
-    _hx_statics = ["fromT"]
+    def __init__(self,value,previous = None,native = None):
+        self.value = None
+        super().__init__(Std.string(value),previous,native)
+        self.value = value
 
-    @staticmethod
-    def fromT(d):
-        this1 = python_Lib.anonAsDict(d)
-        return this1
-_hx_classes["python._KwArgs.KwArgs_Impl_"] = python__KwArgs_KwArgs_Impl_
+    def unwrap(self):
+        return self.value
+
+haxe_ValueException._hx_class = haxe_ValueException
+_hx_classes["haxe.ValueException"] = haxe_ValueException
 
 
 class HxString:
@@ -1378,7 +1246,30 @@ class HxString:
                 if (startIndex < 0):
                     startIndex = 0
             return s[startIndex:(startIndex + _hx_len)]
+HxString._hx_class = HxString
 _hx_classes["HxString"] = HxString
+
+
+class haxe_NativeStackTrace:
+    _hx_class_name = "haxe.NativeStackTrace"
+    __slots__ = ()
+    _hx_statics = ["saveStack", "exceptionStack"]
+
+    @staticmethod
+    def saveStack(exception):
+        pass
+
+    @staticmethod
+    def exceptionStack():
+        exc = python_lib_Sys.exc_info()
+        if (exc[2] is not None):
+            infos = python_lib_Traceback.extract_tb(exc[2])
+            infos.reverse()
+            return infos
+        else:
+            return []
+haxe_NativeStackTrace._hx_class = haxe_NativeStackTrace
+_hx_classes["haxe.NativeStackTrace"] = haxe_NativeStackTrace
 
 
 class python_Lib:
@@ -1407,7 +1298,565 @@ class python_Lib:
             return o.__dict__
         else:
             return None
+python_Lib._hx_class = python_Lib
 _hx_classes["python.Lib"] = python_Lib
+
+
+class build_JsBuild:
+    _hx_class_name = "build.JsBuild"
+    __slots__ = ()
+    _hx_statics = ["jsmap", "RANDOM", "build"]
+
+    @staticmethod
+    def build(file,buildto,root):
+        fileName = StringTools.replace(file,(("null" if root is None else root) + "/"),"")
+        _this = build_JsBuild.jsmap
+        x = (((("<script src=\"" + ("null" if fileName is None else fileName)) + "?m=\"") + HxOverrides.stringOrNull(build_JsBuild.RANDOM)) + " type=\"text/javascript\"></script>")
+        _this.append(x)
+        data = (Main.platformBuild.build(file,root) if ((Main.platformBuild is not None)) else sys_io_File.getContent(file))
+        if (data is None):
+            data = sys_io_File.getContent(file)
+        startIndex1 = None
+        _hx_len = None
+        if (startIndex1 is None):
+            _hx_len = buildto.rfind("/", 0, len(buildto))
+        else:
+            i = buildto.rfind("/", 0, (startIndex1 + 1))
+            startLeft = (max(0,((startIndex1 + 1) - len("/"))) if ((i == -1)) else (i + 1))
+            check = buildto.find("/", startLeft, len(buildto))
+            _hx_len = (check if (((check > i) and ((check <= startIndex1)))) else i)
+        dir = HxString.substr(buildto,0,_hx_len)
+        if (not sys_FileSystem.exists(dir)):
+            python_FileUtils.createDir(dir)
+        sys_io_File.saveContent(buildto,(((("define(\"" + ("null" if fileName is None else fileName)) + "\", function(require, module, exports, process) {\n") + ("null" if data is None else data)) + "\n})"))
+build_JsBuild._hx_class = build_JsBuild
+_hx_classes["build.JsBuild"] = build_JsBuild
+
+
+class build_JsBuildBase:
+    _hx_class_name = "build.JsBuildBase"
+    __slots__ = ()
+    _hx_methods = ["build"]
+
+    def __init__(self):
+        pass
+
+    def build(self,file,root):
+        return None
+
+build_JsBuildBase._hx_class = build_JsBuildBase
+_hx_classes["build.JsBuildBase"] = build_JsBuildBase
+
+
+class build_MgcBuild:
+    _hx_class_name = "build.MgcBuild"
+    __slots__ = ()
+    _hx_statics = ["packageFiles", "build"]
+
+    @staticmethod
+    def build(tools,buildgo):
+        mgc = (("null" if tools is None else tools) + "/mgc-engine")
+        tmp = sys_io_File.getContent((("null" if mgc is None else mgc) + "/__start__.html"))
+        _this = build_JsBuild.jsmap
+        sys_io_File.saveContent((("null" if buildgo is None else buildgo) + "/__start__.html"),StringTools.replace(tmp,"::JS::","\n".join([python_Boot.toString1(x1,'') for x1 in _this])))
+        sys_io_File.copy((("null" if mgc is None else mgc) + "/service.html"),(("null" if buildgo is None else buildgo) + "/service.html"))
+        python_FileUtils.copyDic((("null" if mgc is None else mgc) + "/__leto__"),buildgo)
+        serviceConfig = sys_io_File.getContent((("null" if mgc is None else mgc) + "/service-config.js"))
+        packageFilesObject = _hx_AnonObject({})
+        _g = 0
+        _g1 = build_MgcBuild.packageFiles
+        while (_g < len(_g1)):
+            _hx_str = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
+            _g = (_g + 1)
+            Reflect.setProperty(packageFilesObject,_hx_str,True)
+        serviceConfig = StringTools.replace(serviceConfig,"::PACKAGE_FILES::",haxe_format_JsonPrinter.print(packageFilesObject,None,None))
+        sys_io_File.saveContent((("null" if buildgo is None else buildgo) + "/__leto__/service-config.js"),serviceConfig)
+build_MgcBuild._hx_class = build_MgcBuild
+_hx_classes["build.MgcBuild"] = build_MgcBuild
+
+
+class haxe_Log:
+    _hx_class_name = "haxe.Log"
+    __slots__ = ()
+    _hx_statics = ["formatOutput", "trace"]
+
+    @staticmethod
+    def formatOutput(v,infos):
+        _hx_str = Std.string(v)
+        if (infos is None):
+            return _hx_str
+        pstr = ((HxOverrides.stringOrNull(infos.fileName) + ":") + Std.string(infos.lineNumber))
+        if (Reflect.field(infos,"customParams") is not None):
+            _g = 0
+            _g1 = Reflect.field(infos,"customParams")
+            while (_g < len(_g1)):
+                v = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
+                _g = (_g + 1)
+                _hx_str = (("null" if _hx_str is None else _hx_str) + ((", " + Std.string(v))))
+        return ((("null" if pstr is None else pstr) + ": ") + ("null" if _hx_str is None else _hx_str))
+
+    @staticmethod
+    def trace(v,infos = None):
+        _hx_str = haxe_Log.formatOutput(v,infos)
+        str1 = Std.string(_hx_str)
+        python_Lib.printString((("" + ("null" if str1 is None else str1)) + HxOverrides.stringOrNull(python_Lib.lineEnd)))
+haxe_Log._hx_class = haxe_Log
+_hx_classes["haxe.Log"] = haxe_Log
+
+
+class haxe_format_JsonPrinter:
+    _hx_class_name = "haxe.format.JsonPrinter"
+    __slots__ = ("buf", "replacer", "indent", "pretty", "nind")
+    _hx_fields = ["buf", "replacer", "indent", "pretty", "nind"]
+    _hx_methods = ["write", "classString", "fieldsString", "quote"]
+    _hx_statics = ["print"]
+
+    def __init__(self,replacer,space):
+        self.replacer = replacer
+        self.indent = space
+        self.pretty = (space is not None)
+        self.nind = 0
+        self.buf = StringBuf()
+
+    def write(self,k,v):
+        if (self.replacer is not None):
+            v = self.replacer(k,v)
+        _g = Type.typeof(v)
+        tmp = _g.index
+        if (tmp == 0):
+            self.buf.b.write("null")
+        elif (tmp == 1):
+            _this = self.buf
+            s = Std.string(v)
+            _this.b.write(s)
+        elif (tmp == 2):
+            f = v
+            v1 = (Std.string(v) if ((((f != Math.POSITIVE_INFINITY) and ((f != Math.NEGATIVE_INFINITY))) and (not python_lib_Math.isnan(f)))) else "null")
+            _this = self.buf
+            s = Std.string(v1)
+            _this.b.write(s)
+        elif (tmp == 3):
+            _this = self.buf
+            s = Std.string(v)
+            _this.b.write(s)
+        elif (tmp == 4):
+            self.fieldsString(v,python_Boot.fields(v))
+        elif (tmp == 5):
+            self.buf.b.write("\"<fun>\"")
+        elif (tmp == 6):
+            c = _g.params[0]
+            if (c == str):
+                self.quote(v)
+            elif (c == list):
+                v1 = v
+                _this = self.buf
+                s = "".join(map(chr,[91]))
+                _this.b.write(s)
+                _hx_len = len(v1)
+                last = (_hx_len - 1)
+                _g1 = 0
+                _g2 = _hx_len
+                while (_g1 < _g2):
+                    i = _g1
+                    _g1 = (_g1 + 1)
+                    if (i > 0):
+                        _this = self.buf
+                        s = "".join(map(chr,[44]))
+                        _this.b.write(s)
+                    else:
+                        _hx_local_0 = self
+                        _hx_local_1 = _hx_local_0.nind
+                        _hx_local_0.nind = (_hx_local_1 + 1)
+                        _hx_local_1
+                    if self.pretty:
+                        _this1 = self.buf
+                        s1 = "".join(map(chr,[10]))
+                        _this1.b.write(s1)
+                    if self.pretty:
+                        v2 = StringTools.lpad("",self.indent,(self.nind * len(self.indent)))
+                        _this2 = self.buf
+                        s2 = Std.string(v2)
+                        _this2.b.write(s2)
+                    self.write(i,(v1[i] if i >= 0 and i < len(v1) else None))
+                    if (i == last):
+                        _hx_local_2 = self
+                        _hx_local_3 = _hx_local_2.nind
+                        _hx_local_2.nind = (_hx_local_3 - 1)
+                        _hx_local_3
+                        if self.pretty:
+                            _this3 = self.buf
+                            s3 = "".join(map(chr,[10]))
+                            _this3.b.write(s3)
+                        if self.pretty:
+                            v3 = StringTools.lpad("",self.indent,(self.nind * len(self.indent)))
+                            _this4 = self.buf
+                            s4 = Std.string(v3)
+                            _this4.b.write(s4)
+                _this = self.buf
+                s = "".join(map(chr,[93]))
+                _this.b.write(s)
+            elif (c == haxe_ds_StringMap):
+                v1 = v
+                o = _hx_AnonObject({})
+                k = v1.keys()
+                while k.hasNext():
+                    k1 = k.next()
+                    value = v1.h.get(k1,None)
+                    setattr(o,(("_hx_" + k1) if ((k1 in python_Boot.keywords)) else (("_hx_" + k1) if (((((len(k1) > 2) and ((ord(k1[0]) == 95))) and ((ord(k1[1]) == 95))) and ((ord(k1[(len(k1) - 1)]) != 95)))) else k1)),value)
+                v1 = o
+                self.fieldsString(v1,python_Boot.fields(v1))
+            elif (c == Date):
+                v1 = v
+                self.quote(v1.toString())
+            else:
+                self.classString(v)
+        elif (tmp == 7):
+            _g1 = _g.params[0]
+            i = v.index
+            _this = self.buf
+            s = Std.string(i)
+            _this.b.write(s)
+        elif (tmp == 8):
+            self.buf.b.write("\"???\"")
+        else:
+            pass
+
+    def classString(self,v):
+        self.fieldsString(v,python_Boot.getInstanceFields(Type.getClass(v)))
+
+    def fieldsString(self,v,fields):
+        _this = self.buf
+        s = "".join(map(chr,[123]))
+        _this.b.write(s)
+        _hx_len = len(fields)
+        last = (_hx_len - 1)
+        first = True
+        _g = 0
+        _g1 = _hx_len
+        while (_g < _g1):
+            i = _g
+            _g = (_g + 1)
+            f = (fields[i] if i >= 0 and i < len(fields) else None)
+            value = Reflect.field(v,f)
+            if Reflect.isFunction(value):
+                continue
+            if first:
+                _hx_local_0 = self
+                _hx_local_1 = _hx_local_0.nind
+                _hx_local_0.nind = (_hx_local_1 + 1)
+                _hx_local_1
+                first = False
+            else:
+                _this = self.buf
+                s = "".join(map(chr,[44]))
+                _this.b.write(s)
+            if self.pretty:
+                _this1 = self.buf
+                s1 = "".join(map(chr,[10]))
+                _this1.b.write(s1)
+            if self.pretty:
+                v1 = StringTools.lpad("",self.indent,(self.nind * len(self.indent)))
+                _this2 = self.buf
+                s2 = Std.string(v1)
+                _this2.b.write(s2)
+            self.quote(f)
+            _this3 = self.buf
+            s3 = "".join(map(chr,[58]))
+            _this3.b.write(s3)
+            if self.pretty:
+                _this4 = self.buf
+                s4 = "".join(map(chr,[32]))
+                _this4.b.write(s4)
+            self.write(f,value)
+            if (i == last):
+                _hx_local_2 = self
+                _hx_local_3 = _hx_local_2.nind
+                _hx_local_2.nind = (_hx_local_3 - 1)
+                _hx_local_3
+                if self.pretty:
+                    _this5 = self.buf
+                    s5 = "".join(map(chr,[10]))
+                    _this5.b.write(s5)
+                if self.pretty:
+                    v2 = StringTools.lpad("",self.indent,(self.nind * len(self.indent)))
+                    _this6 = self.buf
+                    s6 = Std.string(v2)
+                    _this6.b.write(s6)
+        _this = self.buf
+        s = "".join(map(chr,[125]))
+        _this.b.write(s)
+
+    def quote(self,s):
+        _this = self.buf
+        s1 = "".join(map(chr,[34]))
+        _this.b.write(s1)
+        i = 0
+        while True:
+            index = i
+            i = (i + 1)
+            c = (-1 if ((index >= len(s))) else ord(s[index]))
+            if (c == -1):
+                break
+            c1 = c
+            if (c1 == 8):
+                self.buf.b.write("\\b")
+            elif (c1 == 9):
+                self.buf.b.write("\\t")
+            elif (c1 == 10):
+                self.buf.b.write("\\n")
+            elif (c1 == 12):
+                self.buf.b.write("\\f")
+            elif (c1 == 13):
+                self.buf.b.write("\\r")
+            elif (c1 == 34):
+                self.buf.b.write("\\\"")
+            elif (c1 == 92):
+                self.buf.b.write("\\\\")
+            else:
+                _this = self.buf
+                s1 = "".join(map(chr,[c]))
+                _this.b.write(s1)
+        _this = self.buf
+        s = "".join(map(chr,[34]))
+        _this.b.write(s)
+
+    @staticmethod
+    def print(o,replacer = None,space = None):
+        printer = haxe_format_JsonPrinter(replacer,space)
+        printer.write("",o)
+        return printer.buf.b.getvalue()
+
+haxe_format_JsonPrinter._hx_class = haxe_format_JsonPrinter
+_hx_classes["haxe.format.JsonPrinter"] = haxe_format_JsonPrinter
+
+
+class haxe_iterators_ArrayIterator:
+    _hx_class_name = "haxe.iterators.ArrayIterator"
+    __slots__ = ("array", "current")
+    _hx_fields = ["array", "current"]
+    _hx_methods = ["hasNext", "next"]
+
+    def __init__(self,array):
+        self.current = 0
+        self.array = array
+
+    def hasNext(self):
+        return (self.current < len(self.array))
+
+    def next(self):
+        def _hx_local_3():
+            def _hx_local_2():
+                _hx_local_0 = self
+                _hx_local_1 = _hx_local_0.current
+                _hx_local_0.current = (_hx_local_1 + 1)
+                return _hx_local_1
+            return python_internal_ArrayImpl._get(self.array, _hx_local_2())
+        return _hx_local_3()
+
+haxe_iterators_ArrayIterator._hx_class = haxe_iterators_ArrayIterator
+_hx_classes["haxe.iterators.ArrayIterator"] = haxe_iterators_ArrayIterator
+
+
+class haxe_iterators_ArrayKeyValueIterator:
+    _hx_class_name = "haxe.iterators.ArrayKeyValueIterator"
+    __slots__ = ("current", "array")
+    _hx_fields = ["current", "array"]
+    _hx_methods = ["hasNext", "next"]
+
+    def __init__(self,array):
+        self.current = 0
+        self.array = array
+
+    def hasNext(self):
+        return (self.current < len(self.array))
+
+    def next(self):
+        def _hx_local_3():
+            def _hx_local_2():
+                _hx_local_0 = self
+                _hx_local_1 = _hx_local_0.current
+                _hx_local_0.current = (_hx_local_1 + 1)
+                return _hx_local_1
+            return _hx_AnonObject({'value': python_internal_ArrayImpl._get(self.array, self.current), 'key': _hx_local_2()})
+        return _hx_local_3()
+
+haxe_iterators_ArrayKeyValueIterator._hx_class = haxe_iterators_ArrayKeyValueIterator
+_hx_classes["haxe.iterators.ArrayKeyValueIterator"] = haxe_iterators_ArrayKeyValueIterator
+
+
+class platform_Cocos(build_JsBuildBase):
+    _hx_class_name = "platform.Cocos"
+    __slots__ = ()
+    _hx_fields = []
+    _hx_methods = ["build"]
+    _hx_statics = []
+    _hx_interfaces = []
+    _hx_super = build_JsBuildBase
+
+
+    def __init__(self):
+        super().__init__()
+
+    def build(self,file,root):
+        super().build(file,root)
+        data = sys_io_File.getContent(file)
+        startIndex = None
+        if (((file.find("cocos2d-js-min.js") if ((startIndex is None)) else HxString.indexOfImpl(file,"cocos2d-js-min.js",startIndex))) != -1):
+            data = StringTools.replace(data,"wx.onAudioInterruptionBegin","window.onAudioInterruptionBegin")
+            data = StringTools.replace(data,"wx.onAudioInterruptionEnd","window.onAudioInterruptionBegin")
+            return data
+        else:
+            startIndex = None
+            if (((file.find("weapp-adapter/index.js") if ((startIndex is None)) else HxString.indexOfImpl(file,"weapp-adapter/index.js",startIndex))) != -1):
+                return ""
+            else:
+                startIndex = None
+                if (((file.find("adapter-min.js") if ((startIndex is None)) else HxString.indexOfImpl(file,"adapter-min.js",startIndex))) != -1):
+                    return sys_io_File.getContent((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/game-engine/cocos/2.4.x/adapter-min.js"))
+        return None
+
+platform_Cocos._hx_class = platform_Cocos
+_hx_classes["platform.Cocos"] = platform_Cocos
+
+
+class platform_Zygameui(build_JsBuildBase):
+    _hx_class_name = "platform.Zygameui"
+    __slots__ = ()
+    _hx_fields = []
+    _hx_methods = ["build"]
+    _hx_statics = []
+    _hx_interfaces = []
+    _hx_super = build_JsBuildBase
+
+
+    def __init__(self):
+        super().__init__()
+
+    def build(self,file,root):
+        _hx_str = (("null" if root is None else root) + "/game.js")
+        startIndex = None
+        if (((file.find(_hx_str) if ((startIndex is None)) else HxString.indexOfImpl(file,_hx_str,startIndex))) != -1):
+            return sys_io_File.getContent((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/game-engine/zygameui-openfl/game.js"))
+        else:
+            startIndex = None
+            if (((file.find("zygameui-dom.js") if ((startIndex is None)) else HxString.indexOfImpl(file,"zygameui-dom.js",startIndex))) != -1):
+                return sys_io_File.getContent((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/game-engine/zygameui-openfl/zygameui-mgc-dom.js"))
+        return super().build(file,root)
+
+platform_Zygameui._hx_class = platform_Zygameui
+_hx_classes["platform.Zygameui"] = platform_Zygameui
+
+
+class python_FileUtils:
+    _hx_class_name = "python.FileUtils"
+    __slots__ = ()
+    _hx_statics = ["createDir", "copyFile", "copyDic", "getIsIgone", "removeDic", "removeNoneDic"]
+
+    @staticmethod
+    def createDir(dir):
+        if (not sys_FileSystem.exists(dir)):
+            sys_FileSystem.createDirectory(dir)
+
+    @staticmethod
+    def copyFile(file,copyTo):
+        if (not sys_FileSystem.exists(file)):
+            haxe_Log.trace(("copyDic 路径不存在：" + ("null" if file is None else file)),_hx_AnonObject({'fileName': "python/FileUtils.hx", 'lineNumber': 19, 'className': "python.FileUtils", 'methodName': "copyFile"}))
+            return
+        startIndex = None
+        _hx_len = None
+        if (startIndex is None):
+            _hx_len = copyTo.rfind("/", 0, len(copyTo))
+        else:
+            i = copyTo.rfind("/", 0, (startIndex + 1))
+            startLeft = (max(0,((startIndex + 1) - len("/"))) if ((i == -1)) else (i + 1))
+            check = copyTo.find("/", startLeft, len(copyTo))
+            _hx_len = (check if (((check > i) and ((check <= startIndex)))) else i)
+        dir = HxString.substr(copyTo,0,_hx_len)
+        if (not sys_FileSystem.exists(dir)):
+            sys_FileSystem.createDirectory(dir)
+        if (sys_FileSystem.exists(copyTo) and (not sys_FileSystem.isDirectory(copyTo))):
+            sys_FileSystem.deleteFile(copyTo)
+        sys_io_File.copy(file,copyTo)
+
+    @staticmethod
+    def copyDic(dic,copyTo,igone = None):
+        if (not sys_FileSystem.exists(dic)):
+            haxe_Log.trace(("copyDic 路径不存在：" + ("null" if dic is None else dic)),_hx_AnonObject({'fileName': "python/FileUtils.hx", 'lineNumber': 41, 'className': "python.FileUtils", 'methodName': "copyDic"}))
+            return
+        startIndex = None
+        pos = None
+        if (startIndex is None):
+            pos = dic.rfind("/", 0, len(dic))
+        else:
+            i = dic.rfind("/", 0, (startIndex + 1))
+            startLeft = (max(0,((startIndex + 1) - len("/"))) if ((i == -1)) else (i + 1))
+            check = dic.find("/", startLeft, len(dic))
+            pos = (check if (((check > i) and ((check <= startIndex)))) else i)
+        dicName = HxString.substr(dic,(pos + 1),None)
+        sys_FileSystem.createDirectory(((("null" if copyTo is None else copyTo) + "/") + ("null" if dicName is None else dicName)))
+        _hx_list = sys_FileSystem.readDirectory(dic)
+        _g = 0
+        while (_g < len(_hx_list)):
+            file = (_hx_list[_g] if _g >= 0 and _g < len(_hx_list) else None)
+            _g = (_g + 1)
+            file2 = ((("null" if dic is None else dic) + "/") + ("null" if file is None else file))
+            if sys_FileSystem.isDirectory(file2):
+                python_FileUtils.copyDic(file2,((("null" if copyTo is None else copyTo) + "/") + ("null" if dicName is None else dicName)),igone)
+            elif ((igone is None) or (not python_FileUtils.getIsIgone(file,igone))):
+                try:
+                    sys_io_File.copy(file2,((("null" if copyTo is None else copyTo) + "/") + ("null" if dicName is None else dicName)))
+                except BaseException as _g1:
+                    e = haxe_Exception.caught(_g1).unwrap()
+                    haxe_Log.trace(("Warring:" + ("null" if file2 is None else file2)),_hx_AnonObject({'fileName': "python/FileUtils.hx", 'lineNumber': 63, 'className': "python.FileUtils", 'methodName': "copyDic", 'customParams': [e]}))
+
+    @staticmethod
+    def getIsIgone(file,igone):
+        _g = 0
+        while (_g < len(igone)):
+            i = (igone[_g] if _g >= 0 and _g < len(igone) else None)
+            _g = (_g + 1)
+            startIndex = None
+            if (((file.find(i) if ((startIndex is None)) else HxString.indexOfImpl(file,i,startIndex))) != -1):
+                return True
+        return False
+
+    @staticmethod
+    def removeDic(dic):
+        if (not sys_FileSystem.exists(dic)):
+            return
+        _hx_list = sys_FileSystem.readDirectory(dic)
+        _g = 0
+        while (_g < len(_hx_list)):
+            file = (_hx_list[_g] if _g >= 0 and _g < len(_hx_list) else None)
+            _g = (_g + 1)
+            file = ((("null" if dic is None else dic) + "/") + ("null" if file is None else file))
+            if sys_FileSystem.isDirectory(file):
+                python_FileUtils.removeDic(file)
+            else:
+                sys_FileSystem.deleteFile(file)
+        sys_FileSystem.deleteDirectory(dic)
+
+    @staticmethod
+    def removeNoneDic(dic):
+        if (not sys_FileSystem.exists(dic)):
+            return False
+        isCanDelDic = True
+        _hx_list = sys_FileSystem.readDirectory(dic)
+        _g = 0
+        while (_g < len(_hx_list)):
+            file = (_hx_list[_g] if _g >= 0 and _g < len(_hx_list) else None)
+            _g = (_g + 1)
+            file = ((("null" if dic is None else dic) + "/") + ("null" if file is None else file))
+            if sys_FileSystem.isDirectory(file):
+                if (not python_FileUtils.removeNoneDic(file)):
+                    isCanDelDic = False
+            else:
+                isCanDelDic = False
+        if isCanDelDic:
+            sys_FileSystem.deleteDirectory(dic)
+        return isCanDelDic
+python_FileUtils._hx_class = python_FileUtils
+_hx_classes["python.FileUtils"] = python_FileUtils
 
 
 class python_internal_ArrayImpl:
@@ -1543,6 +1992,7 @@ class python_internal_ArrayImpl:
             return x[idx]
         else:
             return None
+python_internal_ArrayImpl._hx_class = python_internal_ArrayImpl
 _hx_classes["python.internal.ArrayImpl"] = python_internal_ArrayImpl
 
 
@@ -1576,6 +2026,7 @@ class HxOverrides:
                 setattr(a1,val,x)
                 delattr(a1,k1)
         return a1
+HxOverrides._hx_class = HxOverrides
 _hx_classes["HxOverrides"] = HxOverrides
 
 
@@ -1592,6 +2043,7 @@ class python_internal_MethodClosure:
     def __call__(self,*args):
         return self.func(self.obj,*args)
 
+python_internal_MethodClosure._hx_class = python_internal_MethodClosure
 _hx_classes["python.internal.MethodClosure"] = python_internal_MethodClosure
 
 
@@ -1616,6 +2068,7 @@ class sys_io_File:
     @staticmethod
     def copy(srcPath,dstPath):
         python_lib_Shutil.copy(srcPath,dstPath)
+sys_io_File._hx_class = sys_io_File
 _hx_classes["sys.io.File"] = sys_io_File
 
 Math.NEGATIVE_INFINITY = float("-inf")
@@ -1624,9 +2077,11 @@ Math.NaN = float("nan")
 Math.PI = python_lib_Math.pi
 
 Sys._programPath = sys_FileSystem.fullPath(python_lib_Inspect.getsourcefile(Sys))
-build_JsBuild.jsmap = []
 python_Boot.keywords = set(["and", "del", "from", "not", "with", "as", "elif", "global", "or", "yield", "assert", "else", "if", "pass", "None", "break", "except", "import", "raise", "True", "class", "exec", "in", "return", "False", "continue", "finally", "is", "try", "def", "for", "lambda", "while"])
 python_Boot.prefixLength = len("_hx_")
 python_Lib.lineEnd = ("\r\n" if ((Sys.systemName() == "Windows")) else "\n")
+build_JsBuild.jsmap = []
+build_JsBuild.RANDOM = ("" + Std.string(((Date.now().date.timestamp() * 1000))))
+build_MgcBuild.packageFiles = []
 
 Main.main()

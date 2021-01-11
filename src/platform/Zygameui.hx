@@ -3,6 +3,9 @@ package platform;
 import sys.io.File;
 import build.JsBuild.JsBuildBase;
 
+/**
+ * zygameui框架编译兼容
+ */
 class Zygameui extends JsBuildBase {
 	override function build(file:String, root:String):String {
 		if (file.indexOf(root + "/game.js") != -1) {

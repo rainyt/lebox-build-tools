@@ -2,7 +2,6 @@ package;
 
 import build.MgcBuild;
 import build.JsBuild;
-import sys.io.File;
 import python.FileUtils;
 import sys.FileSystem;
 import platform.Cocos;
@@ -73,6 +72,8 @@ class Main {
 		}
 		// 编译处理
 		var ext = file.substr(file.lastIndexOf(".") + 1);
+		var fileName = StringTools.replace(file,mgc_build_dir + "/","");
+		MgcBuild.packageFiles.push(fileName);
 		switch (ext) {
 			case "js":
 				// JS文件需要经过梦工厂包装

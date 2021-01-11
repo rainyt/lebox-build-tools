@@ -4,13 +4,18 @@ import python.FileUtils;
 import sys.FileSystem;
 import sys.io.File;
 
+/**
+ * 统一的JS编译处理
+ */
 class JsBuild {
 	
 	public static var jsmap:Array<String> = [];
 
+	public static var RANDOM:String = "" + Date.now().getTime();
+
 	public static function build(file:String, buildto:String, root:String):Void {
         var fileName = StringTools.replace(file,root + "/","");
-		jsmap.push('<script src="' + fileName + '?m=8c7025" type="text/javascript"></script>');
+		jsmap.push('<script src="' + fileName + '?m="' + RANDOM + ' type="text/javascript"></script>');
 		var data = Main.platformBuild != null ? Main.platformBuild.build(file,root) : File.getContent(file);
 		if(data == null)
 			data = File.getContent(file);
@@ -22,6 +27,9 @@ class JsBuild {
 	}
 }
 
+/**
+ * 不同平台的编译基础继承类
+ */
 class JsBuildBase {
 	
 	public function new() {
