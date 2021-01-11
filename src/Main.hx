@@ -6,6 +6,7 @@ import sys.io.File;
 import python.FileUtils;
 import sys.FileSystem;
 import platform.Cocos;
+import platform.Zygameui;
 
 /**
  * 梦工厂编译命令
@@ -25,7 +26,11 @@ class Main {
 		mgc_tools_dir = mgc_tools_dir.substr(0, mgc_tools_dir.lastIndexOf("/"));
 		mgc_build_dir = args[0];
 		if (args[1] != null) {
+			try{
 			platformBuild = Type.createInstance(Type.resolveClass("platform." + args[1].charAt(0).toUpperCase() + args[1].substr(1).toLowerCase()),[]);
+			}catch(e){
+				throw ("无效平台值："+args[1]);
+			}
 		}
 		trace("工具目录：" + mgc_tools_dir);
 		trace("梦工厂编译目录：" + mgc_build_dir);

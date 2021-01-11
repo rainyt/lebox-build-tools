@@ -95,10 +95,13 @@ class Main:
         Main.mgc_tools_dir = HxString.substr(_this,0,_hx_len)
         Main.mgc_build_dir = (args[0] if 0 < len(args) else None)
         if ((args[1] if 1 < len(args) else None) is not None):
-            _this = (args[1] if 1 < len(args) else None)
-            Main.platformBuild = Type.resolveClass((("platform." + HxOverrides.stringOrNull(("" if ((0 >= len(_this))) else _this[0]).upper())) + HxOverrides.stringOrNull(HxString.substr((args[1] if 1 < len(args) else None),1,None).lower())))(*[])
-        haxe_Log.trace(("工具目录：" + HxOverrides.stringOrNull(Main.mgc_tools_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 30, 'className': "Main", 'methodName': "main"}))
-        haxe_Log.trace(("梦工厂编译目录：" + HxOverrides.stringOrNull(Main.mgc_build_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 31, 'className': "Main", 'methodName': "main"}))
+            try:
+                _this = (args[1] if 1 < len(args) else None)
+                Main.platformBuild = Type.resolveClass((("platform." + HxOverrides.stringOrNull(("" if ((0 >= len(_this))) else _this[0]).upper())) + HxOverrides.stringOrNull(HxString.substr((args[1] if 1 < len(args) else None),1,None).lower())))(*[])
+            except BaseException as _g:
+                raise haxe_Exception.thrown(("无效平台值：" + HxOverrides.stringOrNull((args[1] if 1 < len(args) else None))))
+        haxe_Log.trace(("工具目录：" + HxOverrides.stringOrNull(Main.mgc_tools_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 35, 'className': "Main", 'methodName': "main"}))
+        haxe_Log.trace(("梦工厂编译目录：" + HxOverrides.stringOrNull(Main.mgc_build_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 36, 'className': "Main", 'methodName': "main"}))
         if (not sys_FileSystem.exists(Main.mgc_build_dir)):
             raise haxe_Exception.thrown((HxOverrides.stringOrNull(Main.mgc_build_dir) + "目录不存在"))
         Main.mgcdict = (HxOverrides.stringOrNull(Main.mgc_build_dir) + "/mgc-dict")
@@ -120,11 +123,11 @@ class Main:
         build_MgcBuild.build(Main.mgc_tools_dir,Main.mgcdict)
         Sys.setCwd(Main.mgcdict)
         Sys.command("zip -r ./1000025.zip ./* -r")
-        haxe_Log.trace("编译结束",_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 52, 'className': "Main", 'methodName': "main"}))
+        haxe_Log.trace("编译结束",_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 57, 'className': "Main", 'methodName': "main"}))
 
     @staticmethod
     def buildFile(file,buildto):
-        haxe_Log.trace(("编译：" + ("null" if file is None else file)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 60, 'className': "Main", 'methodName': "buildFile"}))
+        haxe_Log.trace(("编译：" + ("null" if file is None else file)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 65, 'className': "Main", 'methodName': "buildFile"}))
         if sys_FileSystem.isDirectory(file):
             files = sys_FileSystem.readDirectory(file)
             _g_current = 0
@@ -701,6 +704,33 @@ class platform_Cocos(build_JsBuildBase):
         return None
 
 _hx_classes["platform.Cocos"] = platform_Cocos
+
+
+class platform_Zygameui(build_JsBuildBase):
+    _hx_class_name = "platform.Zygameui"
+    __slots__ = ()
+    _hx_fields = []
+    _hx_methods = ["build"]
+    _hx_statics = []
+    _hx_interfaces = []
+    _hx_super = build_JsBuildBase
+
+
+    def __init__(self):
+        super().__init__()
+
+    def build(self,file,root):
+        _hx_str = (("null" if root is None else root) + "/game.js")
+        startIndex = None
+        if (((file.find(_hx_str) if ((startIndex is None)) else HxString.indexOfImpl(file,_hx_str,startIndex))) != -1):
+            return sys_io_File.getContent((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/game-engine/zygameui-openfl/game.js"))
+        else:
+            startIndex = None
+            if (((file.find("zygameui-dom.js") if ((startIndex is None)) else HxString.indexOfImpl(file,"zygameui-dom.js",startIndex))) != -1):
+                return sys_io_File.getContent((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/game-engine/zygameui-openfl/zygameui-mgc-dom.js"))
+        return super().build(file,root)
+
+_hx_classes["platform.Zygameui"] = platform_Zygameui
 
 
 class python_Boot:
