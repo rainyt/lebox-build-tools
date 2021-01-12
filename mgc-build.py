@@ -1800,7 +1800,29 @@ class platform_Zygameui(build_JsBuildBase):
         _hx_str = (("null" if root is None else root) + "/game.js")
         startIndex = None
         if (((file.find(_hx_str) if ((startIndex is None)) else HxString.indexOfImpl(file,_hx_str,startIndex))) != -1):
-            return sys_io_File.getContent((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/game-engine/zygameui-openfl/game.js"))
+            content = sys_io_File.getContent(file)
+            webpath = content
+            startIndex1 = None
+            pos = None
+            if (startIndex1 is None):
+                pos = content.rfind("lime.lime.embed(\"", 0, len(content))
+            else:
+                i = content.rfind("lime.lime.embed(\"", 0, (startIndex1 + 1))
+                startLeft = (max(0,((startIndex1 + 1) - len("lime.lime.embed(\""))) if ((i == -1)) else (i + 1))
+                check = content.find("lime.lime.embed(\"", startLeft, len(content))
+                pos = (check if (((check > i) and ((check <= startIndex1)))) else i)
+            content = HxString.substr(content,(pos + len("lime.lime.embed(\"")),None)
+            startIndex = None
+            content = HxString.substr(content,0,(content.find("\"") if ((startIndex is None)) else HxString.indexOfImpl(content,"\"",startIndex)))
+            startIndex = None
+            webpath = HxString.substr(webpath,(((webpath.find("window.webPath") if ((startIndex is None)) else HxString.indexOfImpl(webpath,"window.webPath",startIndex))) + len("window.webPath")),None)
+            startIndex = None
+            webpath = HxString.substr(webpath,(((webpath.find("'") if ((startIndex is None)) else HxString.indexOfImpl(webpath,"'",startIndex))) + 1),None)
+            startIndex = None
+            webpath = HxString.substr(webpath,0,(webpath.find("'") if ((startIndex is None)) else HxString.indexOfImpl(webpath,"'",startIndex)))
+            ret = StringTools.replace(sys_io_File.getContent((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/game-engine/zygameui-openfl/game.js")),"::JSID::",content)
+            ret = StringTools.replace(ret,"::WEB_PATH::",webpath)
+            return ret
         else:
             startIndex = None
             if (((file.find("zygameui-dom.js") if ((startIndex is None)) else HxString.indexOfImpl(file,"zygameui-dom.js",startIndex))) != -1):

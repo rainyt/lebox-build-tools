@@ -8,7 +8,7 @@ var _pakoMin = require('./lib/pako.min.js');
 
 var _pakoMin2 = _interopRequireDefault(_pakoMin);
 
-var _SxkLive = require('SxkLive.js');
+var _SxkLive = require('::JSID::.js');
 
 var lime = _interopRequireWildcard(_SxkLive);
 
@@ -90,7 +90,7 @@ window.ADAPPID = "null";
 window.dealId = "null";
 window.bdPayAppKey = "null";
 //远程路径
-window.webPath = 'https://static.kdyx.cn/mmqsy/1001';
+window.webPath = '::WEB_PATH::';
 if (window.webPath == "null") window.webPath = null;
 
 var cw = window.innerWidth;
@@ -98,4 +98,4 @@ var ch = window.innerHeight;
 window.canvas.width = 600;
 window.canvas.height = Math.ceil(ch / cw * canvas.width);
 
-lime.lime.embed("SxkLive", window.canvas, cw, ch, { parameters: {} }); 
+lime.lime.embed("::JSID::", window.canvas, cw, ch, { parameters: {} }); 
