@@ -12,7 +12,6 @@ import platform.Zygameui;
  * 梦工厂编译命令
  */
 class Main {
-
 	/**
 	 * 梦工厂编译工具目录
 	 */
@@ -24,16 +23,18 @@ class Main {
 
 	public static var platformBuild:JsBuildBase;
 
+	public static var isWindow:Bool = Sys.systemName() == "Windows";
+
 	static function main() {
 		var args = Sys.args();
 		mgc_tools_dir = Sys.programPath();
-		mgc_tools_dir = mgc_tools_dir.substr(0, mgc_tools_dir.lastIndexOf("/"));
+		mgc_tools_dir = mgc_tools_dir.substr(0, mgc_tools_dir.lastIndexOf(isWindow ? "\\" : "/"));
 		mgc_build_dir = args[0];
 		if (args[1] != null) {
-			try{
-				platformBuild = Type.createInstance(Type.resolveClass("platform." + args[1].charAt(0).toUpperCase() + args[1].substr(1).toLowerCase()),[]);
-			}catch(e){
-				throw ("无效平台值："+args[1]);
+			try {
+				platformBuild = Type.createInstance(Type.resolveClass("platform." + args[1].charAt(0).toUpperCase() + args[1].substr(1).toLowerCase()), []);
+			} catch (e) {
+				throw("无效平台值：" + args[1]);
 			}
 		}
 		trace("工具目录：" + mgc_tools_dir);
@@ -57,13 +58,32 @@ class Main {
 		MgcBuild.build(mgc_tools_dir, mgcdict);
 		// 生成zip包
 		Sys.setCwd(mgcdict);
-		Sys.command("zip -r ./1000025.zip ./* -r");
+		// var zipcommand = (isWindow ? '"' + mgc_tools_dir + "/zip/zip.exe\"" : "zip") + " -r ./1000025.zip ./* -r";
+		// trace("生成梦工厂包："+zipcommand);
+		// Sys.command(zipcommand);
+		trace("生成梦工厂包");
+		var zip:python.Zip = python.Zip.ZipFile("1000025.zip", "w", python.Zip.ZIP_STORED);
+		processZip(zip, ".");
+		zip.close();
 		// 如果第三个参数是apk，则自动生成apk
-		if(Sys.args()[2] == "apk"){
+		if (Sys.args()[2] == "apk") {
 			// 开始编译安卓(未完成)
 			AndroidApkBuild.build(mgcdict + "/1000025.zip");
 		}
 		trace("编译结束");
+	}
+
+	public static function processZip(zip:python.Zip, dir:String):Void {
+		var files = FileSystem.readDirectory(dir == "." ? "./" : dir);
+		for (index => value in files) {
+			if(value == "1000025.zip")
+				continue;
+			trace("zip " + dir + "/" + value);
+			if (FileSystem.isDirectory(dir + "/" + value)) {
+				processZip(zip, dir + "/" + value);
+			} else
+				zip.write(dir + "/" + value);
+		}
 	}
 
 	/**
@@ -82,7 +102,7 @@ class Main {
 		}
 		// 编译处理
 		var ext = file.substr(file.lastIndexOf(".") + 1);
-		var fileName = StringTools.replace(file,mgc_build_dir + "/","");
+		var fileName = StringTools.replace(file, mgc_build_dir + "/", "");
 		MgcBuild.packageFiles.push(fileName);
 		switch (ext) {
 			case "js":

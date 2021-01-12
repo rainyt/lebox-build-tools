@@ -2,15 +2,16 @@
 # coding: utf-8
 import sys
 
-import math as python_lib_Math
-import math as Math
 from os import path as python_lib_os_Path
 import inspect as python_lib_Inspect
 import os as python_lib_Os
+import sys as python_lib_Sys
+import math as python_lib_Math
+import math as Math
+import traceback as python_lib_Traceback
 from datetime import datetime as python_lib_datetime_Datetime
 from datetime import timezone as python_lib_datetime_Timezone
-import sys as python_lib_Sys
-import traceback as python_lib_Traceback
+import zipfile as python_Zip
 import builtins as python_lib_Builtins
 import functools as python_lib_Functools
 import shutil as python_lib_Shutil
@@ -108,284 +109,6 @@ class Date:
 
 Date._hx_class = Date
 _hx_classes["Date"] = Date
-
-
-class Main:
-    _hx_class_name = "Main"
-    __slots__ = ()
-    _hx_statics = ["mgc_tools_dir", "mgc_build_dir", "mgcdict", "platformBuild", "main", "buildFile"]
-    mgc_tools_dir = None
-    mgc_build_dir = None
-    mgcdict = None
-    platformBuild = None
-
-    @staticmethod
-    def main():
-        args = Sys.args()
-        Main.mgc_tools_dir = Sys.programPath()
-        _this = Main.mgc_tools_dir
-        _this1 = Main.mgc_tools_dir
-        startIndex1 = None
-        _hx_len = None
-        if (startIndex1 is None):
-            _hx_len = _this1.rfind("/", 0, len(_this1))
-        else:
-            i = _this1.rfind("/", 0, (startIndex1 + 1))
-            startLeft = (max(0,((startIndex1 + 1) - len("/"))) if ((i == -1)) else (i + 1))
-            check = _this1.find("/", startLeft, len(_this1))
-            _hx_len = (check if (((check > i) and ((check <= startIndex1)))) else i)
-        Main.mgc_tools_dir = HxString.substr(_this,0,_hx_len)
-        Main.mgc_build_dir = (args[0] if 0 < len(args) else None)
-        if ((args[1] if 1 < len(args) else None) is not None):
-            try:
-                _this = (args[1] if 1 < len(args) else None)
-                Main.platformBuild = Type.resolveClass((("platform." + HxOverrides.stringOrNull(("" if ((0 >= len(_this))) else _this[0]).upper())) + HxOverrides.stringOrNull(HxString.substr((args[1] if 1 < len(args) else None),1,None).lower())))(*[])
-            except BaseException as _g:
-                raise haxe_Exception.thrown(("无效平台值：" + HxOverrides.stringOrNull((args[1] if 1 < len(args) else None))))
-        haxe_Log.trace(("工具目录：" + HxOverrides.stringOrNull(Main.mgc_tools_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 39, 'className': "Main", 'methodName': "main"}))
-        haxe_Log.trace(("梦工厂编译目录：" + HxOverrides.stringOrNull(Main.mgc_build_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 40, 'className': "Main", 'methodName': "main"}))
-        if (not sys_FileSystem.exists(Main.mgc_build_dir)):
-            raise haxe_Exception.thrown((HxOverrides.stringOrNull(Main.mgc_build_dir) + "目录不存在"))
-        Main.mgcdict = (HxOverrides.stringOrNull(Main.mgc_build_dir) + "/mgc-dict")
-        if sys_FileSystem.exists(Main.mgcdict):
-            python_FileUtils.removeDic(Main.mgcdict)
-        python_FileUtils.createDir(Main.mgcdict)
-        files = sys_FileSystem.readDirectory(Main.mgc_build_dir)
-        _g_current = 0
-        _g_array = files
-        while (_g_current < len(_g_array)):
-            _g1_value = (_g_array[_g_current] if _g_current >= 0 and _g_current < len(_g_array) else None)
-            _g1_key = _g_current
-            _g_current = (_g_current + 1)
-            index = _g1_key
-            value = _g1_value
-            if (value == "mgc-dict"):
-                continue
-            Main.buildFile(((HxOverrides.stringOrNull(Main.mgc_build_dir) + "/") + ("null" if value is None else value)),((HxOverrides.stringOrNull(Main.mgcdict) + "/") + ("null" if value is None else value)))
-        build_MgcBuild.build(Main.mgc_tools_dir,Main.mgcdict)
-        Sys.setCwd(Main.mgcdict)
-        Sys.command("zip -r ./1000025.zip ./* -r")
-        if (python_internal_ArrayImpl._get(Sys.args(), 2) == "apk"):
-            build_AndroidApkBuild.build((HxOverrides.stringOrNull(Main.mgcdict) + "/1000025.zip"))
-        haxe_Log.trace("编译结束",_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 66, 'className': "Main", 'methodName': "main"}))
-
-    @staticmethod
-    def buildFile(file,buildto):
-        haxe_Log.trace(("编译：" + ("null" if file is None else file)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 74, 'className': "Main", 'methodName': "buildFile"}))
-        if sys_FileSystem.isDirectory(file):
-            files = sys_FileSystem.readDirectory(file)
-            _g_current = 0
-            _g_array = files
-            while (_g_current < len(_g_array)):
-                _g1_value = (_g_array[_g_current] if _g_current >= 0 and _g_current < len(_g_array) else None)
-                _g1_key = _g_current
-                _g_current = (_g_current + 1)
-                index = _g1_key
-                value = _g1_value
-                Main.buildFile(((("null" if file is None else file) + "/") + ("null" if value is None else value)),((("null" if buildto is None else buildto) + "/") + ("null" if value is None else value)))
-            return
-        startIndex1 = None
-        pos = None
-        if (startIndex1 is None):
-            pos = file.rfind(".", 0, len(file))
-        else:
-            i = file.rfind(".", 0, (startIndex1 + 1))
-            startLeft = (max(0,((startIndex1 + 1) - len("."))) if ((i == -1)) else (i + 1))
-            check = file.find(".", startLeft, len(file))
-            pos = (check if (((check > i) and ((check <= startIndex1)))) else i)
-        ext = HxString.substr(file,(pos + 1),None)
-        fileName = StringTools.replace(file,(HxOverrides.stringOrNull(Main.mgc_build_dir) + "/"),"")
-        _this = build_MgcBuild.packageFiles
-        _this.append(fileName)
-        if (ext == "js"):
-            build_JsBuild.build(file,buildto,Main.mgc_build_dir)
-        else:
-            python_FileUtils.copyFile(file,buildto)
-Main._hx_class = Main
-_hx_classes["Main"] = Main
-
-
-class Reflect:
-    _hx_class_name = "Reflect"
-    __slots__ = ()
-    _hx_statics = ["field", "setProperty", "isFunction"]
-
-    @staticmethod
-    def field(o,field):
-        return python_Boot.field(o,field)
-
-    @staticmethod
-    def setProperty(o,field,value):
-        field1 = (("_hx_" + field) if ((field in python_Boot.keywords)) else (("_hx_" + field) if (((((len(field) > 2) and ((ord(field[0]) == 95))) and ((ord(field[1]) == 95))) and ((ord(field[(len(field) - 1)]) != 95)))) else field))
-        if isinstance(o,_hx_AnonObject):
-            setattr(o,field1,value)
-        elif hasattr(o,("set_" + ("null" if field1 is None else field1))):
-            getattr(o,("set_" + ("null" if field1 is None else field1)))(value)
-        else:
-            setattr(o,field1,value)
-
-    @staticmethod
-    def isFunction(f):
-        if (not ((python_lib_Inspect.isfunction(f) or python_lib_Inspect.ismethod(f)))):
-            return python_Boot.hasField(f,"func_code")
-        else:
-            return True
-Reflect._hx_class = Reflect
-_hx_classes["Reflect"] = Reflect
-
-
-class Std:
-    _hx_class_name = "Std"
-    __slots__ = ()
-    _hx_statics = ["isOfType", "string"]
-
-    @staticmethod
-    def isOfType(v,t):
-        if ((v is None) and ((t is None))):
-            return False
-        if (t is None):
-            return False
-        if (t == Dynamic):
-            return (v is not None)
-        isBool = isinstance(v,bool)
-        if ((t == Bool) and isBool):
-            return True
-        if ((((not isBool) and (not (t == Bool))) and (t == Int)) and isinstance(v,int)):
-            return True
-        vIsFloat = isinstance(v,float)
-        tmp = None
-        tmp1 = None
-        if (((not isBool) and vIsFloat) and (t == Int)):
-            f = v
-            tmp1 = (((f != Math.POSITIVE_INFINITY) and ((f != Math.NEGATIVE_INFINITY))) and (not python_lib_Math.isnan(f)))
-        else:
-            tmp1 = False
-        if tmp1:
-            tmp1 = None
-            try:
-                tmp1 = int(v)
-            except BaseException as _g:
-                tmp1 = None
-            tmp = (v == tmp1)
-        else:
-            tmp = False
-        if ((tmp and ((v <= 2147483647))) and ((v >= -2147483648))):
-            return True
-        if (((not isBool) and (t == Float)) and isinstance(v,(float, int))):
-            return True
-        if (t == str):
-            return isinstance(v,str)
-        isEnumType = (t == Enum)
-        if ((isEnumType and python_lib_Inspect.isclass(v)) and hasattr(v,"_hx_constructs")):
-            return True
-        if isEnumType:
-            return False
-        isClassType = (t == Class)
-        if ((((isClassType and (not isinstance(v,Enum))) and python_lib_Inspect.isclass(v)) and hasattr(v,"_hx_class_name")) and (not hasattr(v,"_hx_constructs"))):
-            return True
-        if isClassType:
-            return False
-        tmp = None
-        try:
-            tmp = isinstance(v,t)
-        except BaseException as _g:
-            tmp = False
-        if tmp:
-            return True
-        if python_lib_Inspect.isclass(t):
-            cls = t
-            loop = None
-            def _hx_local_1(intf):
-                f = (intf._hx_interfaces if (hasattr(intf,"_hx_interfaces")) else [])
-                if (f is not None):
-                    _g = 0
-                    while (_g < len(f)):
-                        i = (f[_g] if _g >= 0 and _g < len(f) else None)
-                        _g = (_g + 1)
-                        if (i == cls):
-                            return True
-                        else:
-                            l = loop(i)
-                            if l:
-                                return True
-                    return False
-                else:
-                    return False
-            loop = _hx_local_1
-            currentClass = v.__class__
-            result = False
-            while (currentClass is not None):
-                if loop(currentClass):
-                    result = True
-                    break
-                currentClass = python_Boot.getSuperClass(currentClass)
-            return result
-        else:
-            return False
-
-    @staticmethod
-    def string(s):
-        return python_Boot.toString1(s,"")
-Std._hx_class = Std
-_hx_classes["Std"] = Std
-
-
-class Float: pass
-
-
-class Int: pass
-
-
-class Bool: pass
-
-
-class Dynamic: pass
-
-
-class StringBuf:
-    _hx_class_name = "StringBuf"
-    __slots__ = ("b",)
-    _hx_fields = ["b"]
-    _hx_methods = ["get_length"]
-
-    def __init__(self):
-        self.b = python_lib_io_StringIO()
-
-    def get_length(self):
-        pos = self.b.tell()
-        self.b.seek(0,2)
-        _hx_len = self.b.tell()
-        self.b.seek(pos,0)
-        return _hx_len
-
-StringBuf._hx_class = StringBuf
-_hx_classes["StringBuf"] = StringBuf
-
-
-class StringTools:
-    _hx_class_name = "StringTools"
-    __slots__ = ()
-    _hx_statics = ["lpad", "replace"]
-
-    @staticmethod
-    def lpad(s,c,l):
-        if (len(c) <= 0):
-            return s
-        buf = StringBuf()
-        l = (l - len(s))
-        while (buf.get_length() < l):
-            s1 = Std.string(c)
-            buf.b.write(s1)
-        s1 = Std.string(s)
-        buf.b.write(s1)
-        return buf.b.getvalue()
-
-    @staticmethod
-    def replace(s,sub,by):
-        _this = (list(s) if ((sub == "")) else s.split(sub))
-        return by.join([python_Boot.toString1(x1,'') for x1 in _this])
-StringTools._hx_class = StringTools
-_hx_classes["StringTools"] = StringTools
 
 
 class sys_FileSystem:
@@ -535,138 +258,6 @@ class Sys:
 Sys._hx_class = Sys
 _hx_classes["Sys"] = Sys
 
-class ValueType(Enum):
-    __slots__ = ()
-    _hx_class_name = "ValueType"
-    _hx_constructs = ["TNull", "TInt", "TFloat", "TBool", "TObject", "TFunction", "TClass", "TEnum", "TUnknown"]
-
-    @staticmethod
-    def TClass(c):
-        return ValueType("TClass", 6, (c,))
-
-    @staticmethod
-    def TEnum(e):
-        return ValueType("TEnum", 7, (e,))
-ValueType.TNull = ValueType("TNull", 0, ())
-ValueType.TInt = ValueType("TInt", 1, ())
-ValueType.TFloat = ValueType("TFloat", 2, ())
-ValueType.TBool = ValueType("TBool", 3, ())
-ValueType.TObject = ValueType("TObject", 4, ())
-ValueType.TFunction = ValueType("TFunction", 5, ())
-ValueType.TUnknown = ValueType("TUnknown", 8, ())
-ValueType._hx_class = ValueType
-_hx_classes["ValueType"] = ValueType
-
-
-class Type:
-    _hx_class_name = "Type"
-    __slots__ = ()
-    _hx_statics = ["getClass", "resolveClass", "typeof"]
-
-    @staticmethod
-    def getClass(o):
-        if (o is None):
-            return None
-        o1 = o
-        if ((o1 is not None) and ((HxOverrides.eq(o1,str) or python_lib_Inspect.isclass(o1)))):
-            return None
-        if isinstance(o,_hx_AnonObject):
-            return None
-        if hasattr(o,"_hx_class"):
-            return o._hx_class
-        if hasattr(o,"__class__"):
-            return o.__class__
-        else:
-            return None
-
-    @staticmethod
-    def resolveClass(name):
-        if (name == "Array"):
-            return list
-        if (name == "Math"):
-            return Math
-        if (name == "String"):
-            return str
-        cl = _hx_classes.get(name,None)
-        tmp = None
-        if (cl is not None):
-            o = cl
-            tmp = (not (((o is not None) and ((HxOverrides.eq(o,str) or python_lib_Inspect.isclass(o))))))
-        else:
-            tmp = True
-        if tmp:
-            return None
-        return cl
-
-    @staticmethod
-    def typeof(v):
-        if (v is None):
-            return ValueType.TNull
-        elif isinstance(v,bool):
-            return ValueType.TBool
-        elif isinstance(v,int):
-            return ValueType.TInt
-        elif isinstance(v,float):
-            return ValueType.TFloat
-        elif isinstance(v,str):
-            return ValueType.TClass(str)
-        elif isinstance(v,list):
-            return ValueType.TClass(list)
-        elif (isinstance(v,_hx_AnonObject) or python_lib_Inspect.isclass(v)):
-            return ValueType.TObject
-        elif isinstance(v,Enum):
-            return ValueType.TEnum(v.__class__)
-        elif (isinstance(v,type) or hasattr(v,"_hx_class")):
-            return ValueType.TClass(v.__class__)
-        elif callable(v):
-            return ValueType.TFunction
-        else:
-            return ValueType.TUnknown
-Type._hx_class = Type
-_hx_classes["Type"] = Type
-
-
-class build_AndroidApkBuild:
-    _hx_class_name = "build.AndroidApkBuild"
-    __slots__ = ()
-    _hx_statics = ["build", "aapt"]
-
-    @staticmethod
-    def build(zip):
-        python_FileUtils.createDir((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/assets"))
-        sys_io_File.copy(zip,(HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/assets/1000025.zip"))
-        build_AndroidApkBuild.aapt("assets/1000025.zip","assets/1000025.zip")
-
-    @staticmethod
-    def aapt(file,to):
-        platfrom = Sys.systemName()
-        command = ("aapt.exe" if ((platfrom == "Windows")) else "aapt")
-        signCommand = ("jarsigner.exe" if ((platfrom == "Windows")) else "jarsigner")
-        haxe_Log.trace("clear apk file.",_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 28, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
-        Sys.command(((((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk") + "\n") + ("null" if command is None else command)) + " r app-debug.apk assets/1000025.zip META-INF/CERT.SF META-INF/MANIFEST.MF"))
-        haxe_Log.trace("update apk file.",_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 35, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
-        Sys.command((((((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk") + "\n") + ("null" if command is None else command)) + " a app-debug.apk ") + ("null" if file is None else file)))
-        Sys.command(((((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk") + "\n") + ("null" if signCommand is None else signCommand)) + " -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore debug.keystore -storepass 123456 -keypass 123456 app-debug.apk demo -signedjar app-debug-signed.apk"))
-        sys_io_File.copy((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/app-debug-signed.apk"),(HxOverrides.stringOrNull(Main.mgcdict) + "/debug.apk"))
-        sys_FileSystem.deleteFile((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/app-debug-signed.apk"))
-        python_FileUtils.removeDic((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/assets"))
-        haxe_Log.trace((("- 编译结束 -\nAPK包目录：" + HxOverrides.stringOrNull(Main.mgcdict)) + "/debug.apk"),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 51, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
-build_AndroidApkBuild._hx_class = build_AndroidApkBuild
-_hx_classes["build.AndroidApkBuild"] = build_AndroidApkBuild
-
-
-class python__KwArgs_KwArgs_Impl_:
-    _hx_class_name = "python._KwArgs.KwArgs_Impl_"
-    __slots__ = ()
-    _hx_statics = ["fromT"]
-
-    @staticmethod
-    def fromT(d):
-        this1 = python_Lib.anonAsDict(d)
-        return this1
-python__KwArgs_KwArgs_Impl_._hx_class = python__KwArgs_KwArgs_Impl_
-_hx_classes["python._KwArgs.KwArgs_Impl_"] = python__KwArgs_KwArgs_Impl_
-
 
 class haxe_Exception(Exception):
     _hx_class_name = "haxe.Exception"
@@ -724,6 +315,114 @@ class haxe_Exception(Exception):
 
 haxe_Exception._hx_class = haxe_Exception
 _hx_classes["haxe.Exception"] = haxe_Exception
+
+
+class Std:
+    _hx_class_name = "Std"
+    __slots__ = ()
+    _hx_statics = ["isOfType", "string"]
+
+    @staticmethod
+    def isOfType(v,t):
+        if ((v is None) and ((t is None))):
+            return False
+        if (t is None):
+            return False
+        if (t == Dynamic):
+            return (v is not None)
+        isBool = isinstance(v,bool)
+        if ((t == Bool) and isBool):
+            return True
+        if ((((not isBool) and (not (t == Bool))) and (t == Int)) and isinstance(v,int)):
+            return True
+        vIsFloat = isinstance(v,float)
+        tmp = None
+        tmp1 = None
+        if (((not isBool) and vIsFloat) and (t == Int)):
+            f = v
+            tmp1 = (((f != Math.POSITIVE_INFINITY) and ((f != Math.NEGATIVE_INFINITY))) and (not python_lib_Math.isnan(f)))
+        else:
+            tmp1 = False
+        if tmp1:
+            tmp1 = None
+            try:
+                tmp1 = int(v)
+            except BaseException as _g:
+                tmp1 = None
+            tmp = (v == tmp1)
+        else:
+            tmp = False
+        if ((tmp and ((v <= 2147483647))) and ((v >= -2147483648))):
+            return True
+        if (((not isBool) and (t == Float)) and isinstance(v,(float, int))):
+            return True
+        if (t == str):
+            return isinstance(v,str)
+        isEnumType = (t == Enum)
+        if ((isEnumType and python_lib_Inspect.isclass(v)) and hasattr(v,"_hx_constructs")):
+            return True
+        if isEnumType:
+            return False
+        isClassType = (t == Class)
+        if ((((isClassType and (not isinstance(v,Enum))) and python_lib_Inspect.isclass(v)) and hasattr(v,"_hx_class_name")) and (not hasattr(v,"_hx_constructs"))):
+            return True
+        if isClassType:
+            return False
+        tmp = None
+        try:
+            tmp = isinstance(v,t)
+        except BaseException as _g:
+            tmp = False
+        if tmp:
+            return True
+        if python_lib_Inspect.isclass(t):
+            cls = t
+            loop = None
+            def _hx_local_1(intf):
+                f = (intf._hx_interfaces if (hasattr(intf,"_hx_interfaces")) else [])
+                if (f is not None):
+                    _g = 0
+                    while (_g < len(f)):
+                        i = (f[_g] if _g >= 0 and _g < len(f) else None)
+                        _g = (_g + 1)
+                        if (i == cls):
+                            return True
+                        else:
+                            l = loop(i)
+                            if l:
+                                return True
+                    return False
+                else:
+                    return False
+            loop = _hx_local_1
+            currentClass = v.__class__
+            result = False
+            while (currentClass is not None):
+                if loop(currentClass):
+                    result = True
+                    break
+                currentClass = python_Boot.getSuperClass(currentClass)
+            return result
+        else:
+            return False
+
+    @staticmethod
+    def string(s):
+        return python_Boot.toString1(s,"")
+Std._hx_class = Std
+_hx_classes["Std"] = Std
+
+
+class Dynamic: pass
+
+
+class Bool: pass
+
+
+class Int: pass
+
+
+class Float: pass
 
 
 class python_Boot:
@@ -1301,6 +1000,342 @@ class haxe_NativeStackTrace:
             return []
 haxe_NativeStackTrace._hx_class = haxe_NativeStackTrace
 _hx_classes["haxe.NativeStackTrace"] = haxe_NativeStackTrace
+
+
+class Main:
+    _hx_class_name = "Main"
+    __slots__ = ()
+    _hx_statics = ["mgc_tools_dir", "mgc_build_dir", "mgcdict", "platformBuild", "isWindow", "main", "processZip", "buildFile"]
+    mgc_tools_dir = None
+    mgc_build_dir = None
+    mgcdict = None
+    platformBuild = None
+
+    @staticmethod
+    def main():
+        args = Sys.args()
+        Main.mgc_tools_dir = Sys.programPath()
+        _this = Main.mgc_tools_dir
+        _this1 = Main.mgc_tools_dir
+        _hx_str = ("\\" if (Main.isWindow) else "/")
+        startIndex1 = None
+        _hx_len = None
+        if (startIndex1 is None):
+            _hx_len = _this1.rfind(_hx_str, 0, len(_this1))
+        elif (_hx_str == ""):
+            length = len(_this1)
+            if (startIndex1 < 0):
+                startIndex1 = (length + startIndex1)
+                if (startIndex1 < 0):
+                    startIndex1 = 0
+            _hx_len = (length if ((startIndex1 > length)) else startIndex1)
+        else:
+            i = _this1.rfind(_hx_str, 0, (startIndex1 + 1))
+            startLeft = (max(0,((startIndex1 + 1) - len(_hx_str))) if ((i == -1)) else (i + 1))
+            check = _this1.find(_hx_str, startLeft, len(_this1))
+            _hx_len = (check if (((check > i) and ((check <= startIndex1)))) else i)
+        Main.mgc_tools_dir = HxString.substr(_this,0,_hx_len)
+        Main.mgc_build_dir = (args[0] if 0 < len(args) else None)
+        if ((args[1] if 1 < len(args) else None) is not None):
+            try:
+                _this = (args[1] if 1 < len(args) else None)
+                Main.platformBuild = Type.resolveClass((("platform." + HxOverrides.stringOrNull(("" if ((0 >= len(_this))) else _this[0]).upper())) + HxOverrides.stringOrNull(HxString.substr((args[1] if 1 < len(args) else None),1,None).lower())))(*[])
+            except BaseException as _g:
+                raise haxe_Exception.thrown(("无效平台值：" + HxOverrides.stringOrNull((args[1] if 1 < len(args) else None))))
+        haxe_Log.trace(("工具目录：" + HxOverrides.stringOrNull(Main.mgc_tools_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 40, 'className': "Main", 'methodName': "main"}))
+        haxe_Log.trace(("梦工厂编译目录：" + HxOverrides.stringOrNull(Main.mgc_build_dir)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 41, 'className': "Main", 'methodName': "main"}))
+        if (not sys_FileSystem.exists(Main.mgc_build_dir)):
+            raise haxe_Exception.thrown((HxOverrides.stringOrNull(Main.mgc_build_dir) + "目录不存在"))
+        Main.mgcdict = (HxOverrides.stringOrNull(Main.mgc_build_dir) + "/mgc-dict")
+        if sys_FileSystem.exists(Main.mgcdict):
+            python_FileUtils.removeDic(Main.mgcdict)
+        python_FileUtils.createDir(Main.mgcdict)
+        files = sys_FileSystem.readDirectory(Main.mgc_build_dir)
+        _g_current = 0
+        _g_array = files
+        while (_g_current < len(_g_array)):
+            _g1_value = (_g_array[_g_current] if _g_current >= 0 and _g_current < len(_g_array) else None)
+            _g1_key = _g_current
+            _g_current = (_g_current + 1)
+            index = _g1_key
+            value = _g1_value
+            if (value == "mgc-dict"):
+                continue
+            Main.buildFile(((HxOverrides.stringOrNull(Main.mgc_build_dir) + "/") + ("null" if value is None else value)),((HxOverrides.stringOrNull(Main.mgcdict) + "/") + ("null" if value is None else value)))
+        build_MgcBuild.build(Main.mgc_tools_dir,Main.mgcdict)
+        Sys.setCwd(Main.mgcdict)
+        haxe_Log.trace("生成梦工厂包",_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 64, 'className': "Main", 'methodName': "main"}))
+        zip = python_Zip.ZipFile("1000025.zip","w",python_Zip.ZIP_STORED)
+        Main.processZip(zip,".")
+        zip.close()
+        if (python_internal_ArrayImpl._get(Sys.args(), 2) == "apk"):
+            build_AndroidApkBuild.build((HxOverrides.stringOrNull(Main.mgcdict) + "/1000025.zip"))
+        haxe_Log.trace("编译结束",_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 73, 'className': "Main", 'methodName': "main"}))
+
+    @staticmethod
+    def processZip(zip,dir):
+        files = sys_FileSystem.readDirectory(("./" if ((dir == ".")) else dir))
+        _g_current = 0
+        _g_array = files
+        while (_g_current < len(_g_array)):
+            _g1_value = (_g_array[_g_current] if _g_current >= 0 and _g_current < len(_g_array) else None)
+            _g1_key = _g_current
+            _g_current = (_g_current + 1)
+            index = _g1_key
+            value = _g1_value
+            if (value == "1000025.zip"):
+                continue
+            haxe_Log.trace(((("zip " + ("null" if dir is None else dir)) + "/") + ("null" if value is None else value)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 81, 'className': "Main", 'methodName': "processZip"}))
+            if sys_FileSystem.isDirectory(((("null" if dir is None else dir) + "/") + ("null" if value is None else value))):
+                Main.processZip(zip,((("null" if dir is None else dir) + "/") + ("null" if value is None else value)))
+            else:
+                zip.write(((("null" if dir is None else dir) + "/") + ("null" if value is None else value)))
+
+    @staticmethod
+    def buildFile(file,buildto):
+        haxe_Log.trace(("编译：" + ("null" if file is None else file)),_hx_AnonObject({'fileName': "src/Main.hx", 'lineNumber': 94, 'className': "Main", 'methodName': "buildFile"}))
+        if sys_FileSystem.isDirectory(file):
+            files = sys_FileSystem.readDirectory(file)
+            _g_current = 0
+            _g_array = files
+            while (_g_current < len(_g_array)):
+                _g1_value = (_g_array[_g_current] if _g_current >= 0 and _g_current < len(_g_array) else None)
+                _g1_key = _g_current
+                _g_current = (_g_current + 1)
+                index = _g1_key
+                value = _g1_value
+                Main.buildFile(((("null" if file is None else file) + "/") + ("null" if value is None else value)),((("null" if buildto is None else buildto) + "/") + ("null" if value is None else value)))
+            return
+        startIndex1 = None
+        pos = None
+        if (startIndex1 is None):
+            pos = file.rfind(".", 0, len(file))
+        else:
+            i = file.rfind(".", 0, (startIndex1 + 1))
+            startLeft = (max(0,((startIndex1 + 1) - len("."))) if ((i == -1)) else (i + 1))
+            check = file.find(".", startLeft, len(file))
+            pos = (check if (((check > i) and ((check <= startIndex1)))) else i)
+        ext = HxString.substr(file,(pos + 1),None)
+        fileName = StringTools.replace(file,(HxOverrides.stringOrNull(Main.mgc_build_dir) + "/"),"")
+        _this = build_MgcBuild.packageFiles
+        _this.append(fileName)
+        if (ext == "js"):
+            build_JsBuild.build(file,buildto,Main.mgc_build_dir)
+        else:
+            python_FileUtils.copyFile(file,buildto)
+Main._hx_class = Main
+_hx_classes["Main"] = Main
+
+
+class Reflect:
+    _hx_class_name = "Reflect"
+    __slots__ = ()
+    _hx_statics = ["field", "setProperty", "isFunction"]
+
+    @staticmethod
+    def field(o,field):
+        return python_Boot.field(o,field)
+
+    @staticmethod
+    def setProperty(o,field,value):
+        field1 = (("_hx_" + field) if ((field in python_Boot.keywords)) else (("_hx_" + field) if (((((len(field) > 2) and ((ord(field[0]) == 95))) and ((ord(field[1]) == 95))) and ((ord(field[(len(field) - 1)]) != 95)))) else field))
+        if isinstance(o,_hx_AnonObject):
+            setattr(o,field1,value)
+        elif hasattr(o,("set_" + ("null" if field1 is None else field1))):
+            getattr(o,("set_" + ("null" if field1 is None else field1)))(value)
+        else:
+            setattr(o,field1,value)
+
+    @staticmethod
+    def isFunction(f):
+        if (not ((python_lib_Inspect.isfunction(f) or python_lib_Inspect.ismethod(f)))):
+            return python_Boot.hasField(f,"func_code")
+        else:
+            return True
+Reflect._hx_class = Reflect
+_hx_classes["Reflect"] = Reflect
+
+
+class StringBuf:
+    _hx_class_name = "StringBuf"
+    __slots__ = ("b",)
+    _hx_fields = ["b"]
+    _hx_methods = ["get_length"]
+
+    def __init__(self):
+        self.b = python_lib_io_StringIO()
+
+    def get_length(self):
+        pos = self.b.tell()
+        self.b.seek(0,2)
+        _hx_len = self.b.tell()
+        self.b.seek(pos,0)
+        return _hx_len
+
+StringBuf._hx_class = StringBuf
+_hx_classes["StringBuf"] = StringBuf
+
+
+class StringTools:
+    _hx_class_name = "StringTools"
+    __slots__ = ()
+    _hx_statics = ["lpad", "replace"]
+
+    @staticmethod
+    def lpad(s,c,l):
+        if (len(c) <= 0):
+            return s
+        buf = StringBuf()
+        l = (l - len(s))
+        while (buf.get_length() < l):
+            s1 = Std.string(c)
+            buf.b.write(s1)
+        s1 = Std.string(s)
+        buf.b.write(s1)
+        return buf.b.getvalue()
+
+    @staticmethod
+    def replace(s,sub,by):
+        _this = (list(s) if ((sub == "")) else s.split(sub))
+        return by.join([python_Boot.toString1(x1,'') for x1 in _this])
+StringTools._hx_class = StringTools
+_hx_classes["StringTools"] = StringTools
+
+class ValueType(Enum):
+    __slots__ = ()
+    _hx_class_name = "ValueType"
+    _hx_constructs = ["TNull", "TInt", "TFloat", "TBool", "TObject", "TFunction", "TClass", "TEnum", "TUnknown"]
+
+    @staticmethod
+    def TClass(c):
+        return ValueType("TClass", 6, (c,))
+
+    @staticmethod
+    def TEnum(e):
+        return ValueType("TEnum", 7, (e,))
+ValueType.TNull = ValueType("TNull", 0, ())
+ValueType.TInt = ValueType("TInt", 1, ())
+ValueType.TFloat = ValueType("TFloat", 2, ())
+ValueType.TBool = ValueType("TBool", 3, ())
+ValueType.TObject = ValueType("TObject", 4, ())
+ValueType.TFunction = ValueType("TFunction", 5, ())
+ValueType.TUnknown = ValueType("TUnknown", 8, ())
+ValueType._hx_class = ValueType
+_hx_classes["ValueType"] = ValueType
+
+
+class Type:
+    _hx_class_name = "Type"
+    __slots__ = ()
+    _hx_statics = ["getClass", "resolveClass", "typeof"]
+
+    @staticmethod
+    def getClass(o):
+        if (o is None):
+            return None
+        o1 = o
+        if ((o1 is not None) and ((HxOverrides.eq(o1,str) or python_lib_Inspect.isclass(o1)))):
+            return None
+        if isinstance(o,_hx_AnonObject):
+            return None
+        if hasattr(o,"_hx_class"):
+            return o._hx_class
+        if hasattr(o,"__class__"):
+            return o.__class__
+        else:
+            return None
+
+    @staticmethod
+    def resolveClass(name):
+        if (name == "Array"):
+            return list
+        if (name == "Math"):
+            return Math
+        if (name == "String"):
+            return str
+        cl = _hx_classes.get(name,None)
+        tmp = None
+        if (cl is not None):
+            o = cl
+            tmp = (not (((o is not None) and ((HxOverrides.eq(o,str) or python_lib_Inspect.isclass(o))))))
+        else:
+            tmp = True
+        if tmp:
+            return None
+        return cl
+
+    @staticmethod
+    def typeof(v):
+        if (v is None):
+            return ValueType.TNull
+        elif isinstance(v,bool):
+            return ValueType.TBool
+        elif isinstance(v,int):
+            return ValueType.TInt
+        elif isinstance(v,float):
+            return ValueType.TFloat
+        elif isinstance(v,str):
+            return ValueType.TClass(str)
+        elif isinstance(v,list):
+            return ValueType.TClass(list)
+        elif (isinstance(v,_hx_AnonObject) or python_lib_Inspect.isclass(v)):
+            return ValueType.TObject
+        elif isinstance(v,Enum):
+            return ValueType.TEnum(v.__class__)
+        elif (isinstance(v,type) or hasattr(v,"_hx_class")):
+            return ValueType.TClass(v.__class__)
+        elif callable(v):
+            return ValueType.TFunction
+        else:
+            return ValueType.TUnknown
+Type._hx_class = Type
+_hx_classes["Type"] = Type
+
+
+class build_AndroidApkBuild:
+    _hx_class_name = "build.AndroidApkBuild"
+    __slots__ = ()
+    _hx_statics = ["build", "aapt"]
+
+    @staticmethod
+    def build(zip):
+        python_FileUtils.createDir((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/assets"))
+        sys_io_File.copy(zip,(HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/assets/1000025.zip"))
+        build_AndroidApkBuild.aapt("assets/1000025.zip","assets/1000025.zip")
+
+    @staticmethod
+    def aapt(file,to):
+        platfrom = Sys.systemName()
+        command = ("aapt.exe" if ((platfrom == "Windows")) else "aapt")
+        signCommand = ("jarsigner.exe" if ((platfrom == "Windows")) else "jarsigner")
+        clear = ((((("cd \"" + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk\"") + " && ") + ("null" if command is None else command)) + " r app-debug.apk assets/1000025.zip META-INF/CERT.SF META-INF/MANIFEST.MF")
+        haxe_Log.trace(("clear apk file:" + ("null" if clear is None else clear)),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 34, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
+        Sys.command(clear)
+        update = (((((("cd \"" + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk\"") + " && ") + ("null" if command is None else command)) + " a app-debug.apk ") + ("null" if file is None else file))
+        haxe_Log.trace(("update apk file:" + ("null" if update is None else update)),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 37, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
+        Sys.command(update)
+        sign = ((((("cd \"" + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk\"") + " && ") + ("null" if signCommand is None else signCommand)) + " -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore debug.keystore -storepass 123456 -keypass 123456 app-debug.apk demo -signedjar app-debug-signed.apk")
+        haxe_Log.trace(("签名:" + ("null" if sign is None else sign)),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 47, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
+        Sys.command(sign)
+        sys_io_File.copy((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/app-debug-signed.apk"),(HxOverrides.stringOrNull(Main.mgcdict) + "/debug.apk"))
+        sys_FileSystem.deleteFile((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/app-debug-signed.apk"))
+        python_FileUtils.removeDic((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/assets"))
+        haxe_Log.trace((("- 编译结束 -\nAPK包目录：" + HxOverrides.stringOrNull(Main.mgcdict)) + "/debug.apk"),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 52, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
+build_AndroidApkBuild._hx_class = build_AndroidApkBuild
+_hx_classes["build.AndroidApkBuild"] = build_AndroidApkBuild
+
+
+class python__KwArgs_KwArgs_Impl_:
+    _hx_class_name = "python._KwArgs.KwArgs_Impl_"
+    __slots__ = ()
+    _hx_statics = ["fromT"]
+
+    @staticmethod
+    def fromT(d):
+        this1 = python_Lib.anonAsDict(d)
+        return this1
+python__KwArgs_KwArgs_Impl_._hx_class = python__KwArgs_KwArgs_Impl_
+_hx_classes["python._KwArgs.KwArgs_Impl_"] = python__KwArgs_KwArgs_Impl_
 
 
 class python_Lib:
@@ -2110,6 +2145,7 @@ Math.PI = python_lib_Math.pi
 Sys._programPath = sys_FileSystem.fullPath(python_lib_Inspect.getsourcefile(Sys))
 python_Boot.keywords = set(["and", "del", "from", "not", "with", "as", "elif", "global", "or", "yield", "assert", "else", "if", "pass", "None", "break", "except", "import", "raise", "True", "class", "exec", "in", "return", "False", "continue", "finally", "is", "try", "def", "for", "lambda", "while"])
 python_Boot.prefixLength = len("_hx_")
+Main.isWindow = (Sys.systemName() == "Windows")
 python_Lib.lineEnd = ("\r\n" if ((Sys.systemName() == "Windows")) else "\n")
 build_JsBuild.jsmap = []
 build_JsBuild.RANDOM = ("" + Std.string(((Date.now().date.timestamp() * 1000))))
