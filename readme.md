@@ -1,5 +1,6 @@
 ## 梦工厂游戏包编译工具
-该工具是用于生成梦工厂可运行的游戏包。如需更新测试APK，请前往lebox的运行环境：https://github.com/ztwireless/lebox，然后进行编译，替换工具中的app-debug.apk文件。
+该工具是用于生成梦工厂可运行的游戏包。如需更新测试APK，请前往lebox的运行环境：https://github.com/ztwireless/lebox
+然后进行编译，替换工具中的app-debug.apk文件。
 
 ## 运行环境
 需要安装Python3.0+
