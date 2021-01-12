@@ -629,15 +629,28 @@ _hx_classes["Type"] = Type
 class build_AndroidApkBuild:
     _hx_class_name = "build.AndroidApkBuild"
     __slots__ = ()
-    _hx_statics = ["build"]
+    _hx_statics = ["build", "aapt"]
 
     @staticmethod
     def build(zip):
-        if ((not sys_FileSystem.exists((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build"))) or (not sys_FileSystem.exists((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build/app-debug")))):
-            python_FileUtils.createDir((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build"))
-            Sys.command(((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/build") + "\njava -jar apktool.jar d app-debug.apk"))
-        sys_io_File.copy(zip,(HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/build/app-debug/assets/1000025.zip"))
-        Sys.command(((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/build") + "\njava -jar apktool.jar b app-debug"))
+        python_FileUtils.createDir((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/assets"))
+        sys_io_File.copy(zip,(HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/assets/1000025.zip"))
+        build_AndroidApkBuild.aapt("assets/1000025.zip","assets/1000025.zip")
+
+    @staticmethod
+    def aapt(file,to):
+        platfrom = Sys.systemName()
+        command = ("aapt.exe" if ((platfrom == "Windows")) else "aapt")
+        signCommand = ("jarsigner.exe" if ((platfrom == "Windows")) else "jarsigner")
+        haxe_Log.trace("clear apk file.",_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 28, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
+        Sys.command(((((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk") + "\n") + ("null" if command is None else command)) + " r app-debug.apk assets/1000025.zip META-INF/CERT.SF META-INF/MANIFEST.MF"))
+        haxe_Log.trace("update apk file.",_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 35, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
+        Sys.command((((((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk") + "\n") + ("null" if command is None else command)) + " a app-debug.apk ") + ("null" if file is None else file)))
+        Sys.command(((((("cd " + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk") + "\n") + ("null" if signCommand is None else signCommand)) + " -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore debug.keystore -storepass 123456 -keypass 123456 app-debug.apk demo -signedjar app-debug-signed.apk"))
+        sys_io_File.copy((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/app-debug-signed.apk"),(HxOverrides.stringOrNull(Main.mgcdict) + "/debug.apk"))
+        sys_FileSystem.deleteFile((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/app-debug-signed.apk"))
+        python_FileUtils.removeDic((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/assets"))
+        haxe_Log.trace((("- 编译结束 -\nAPK包目录：" + HxOverrides.stringOrNull(Main.mgcdict)) + "/debug.apk"),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 51, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
 build_AndroidApkBuild._hx_class = build_AndroidApkBuild
 _hx_classes["build.AndroidApkBuild"] = build_AndroidApkBuild
 

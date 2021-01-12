@@ -15,8 +15,9 @@ python3 mgc-build.py 编译文件夹 引擎平台
 - cocos：兼容2.1.4、2.4.3版本。
 - zygameui：兼容使用zygameui框架开发的openfl游戏。
 
-## APK自测包（未完成）
-如果需要生成APK自测包，需要安装GIT环境。并在参数后追加apk，可自动生成出APK（mgc-dict/debug.apk）。
-注意：
-- 第一次运行该命令需要下载lebox运行环境，会较为缓慢，请耐心等待。
-- 每次该命令仅可运行一次，不要重复运行，避免编译异常。
+## APK自测包
+在命令的第三个参数填写`apk`则可以自动生成出自测包，安装到手机运行测试。
+例子：
+```shell
+python3 mgc-build.py 编译文件夹 引擎平台 apk
+```
