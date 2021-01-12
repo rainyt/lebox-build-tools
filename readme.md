@@ -21,3 +21,8 @@ python3 mgc-build.py 编译文件夹 引擎平台
 ```shell
 python3 mgc-build.py 编译文件夹 引擎平台 apk
 ```
+LOG读取，使用LogCat：
+```shell 
+adb logcat -s Page:* AppService:* chromium:*
+```
+也可以在Eclipse或者AndroidStudio中，筛选`chromium`获取主要的游戏日志。
