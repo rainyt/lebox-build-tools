@@ -5,7 +5,8 @@ import python.FileUtils;
 import sys.FileSystem;
 
 /**
- * 编译自测APK流程：需要安装GIT的lebox运行环境，更换zip包后，进行重新打包。
+ * 编译自测APK流程：
+ * 将1000025.zip的包更新，并进行重新签名获取到APK
  */
 class AndroidApkBuild {
 	public static function build(zip:String):Void {
@@ -23,7 +24,6 @@ class AndroidApkBuild {
 	public static function aapt(file:String, to:String):Void {
 		var platfrom = Sys.systemName();
 		var command = platfrom == "Windows" ? "aapt.exe" : "aapt";
-		var signCommand = platfrom == "Windows" ? "jarsigner.exe" : "jarsigner";
 		// 移除APK中的1000025.zip
 		var clear = "cd \""
 			+ Main.mgc_tools_dir
@@ -40,14 +40,11 @@ class AndroidApkBuild {
 		var sign = "cd \""
 			+ Main.mgc_tools_dir
 			+ "/apk\""
-			+ " && "
-			+ signCommand
-			+
-			" -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore debug.keystore -storepass 123456 -keypass 123456 app-debug.apk demo -signedjar app-debug-signed.apk";
+			+ " && " +
+			"java -jar apksigner.jar sign --ks-pass pass:123456  --ks debug.keystore --ks-key-alias demo app-debug.apk ";
 		trace("签名:" + sign);
 		Sys.command(sign);
-		File.copy(Main.mgc_tools_dir + "/apk/app-debug-signed.apk", Main.mgcdict + "/debug.apk");
-		FileSystem.deleteFile(Main.mgc_tools_dir + "/apk/app-debug-signed.apk");
+		File.copy(Main.mgc_tools_dir + "/apk/app-debug.apk", Main.mgcdict + "/debug.apk");
 		FileUtils.removeDic(Main.mgc_tools_dir + "/apk/assets");
 		trace("- 编译结束 -\nAPK包目录：" + Main.mgcdict + "/debug.apk");
 	}

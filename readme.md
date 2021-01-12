@@ -4,8 +4,10 @@
 
 ## 运行环境
 需要安装Python3.0+
-Mac（测试通过）
-Window（测试通过，APK生成需要jli.dll）
+
+## 系统支持
+- Mac（测试通过）
+- Window（测试通过）
 
 ## 编译命令
 命令需要Python3.0以上

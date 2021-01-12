@@ -1307,20 +1307,18 @@ class build_AndroidApkBuild:
     def aapt(file,to):
         platfrom = Sys.systemName()
         command = ("aapt.exe" if ((platfrom == "Windows")) else "aapt")
-        signCommand = ("jarsigner.exe" if ((platfrom == "Windows")) else "jarsigner")
         clear = ((((("cd \"" + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk\"") + " && ") + ("null" if command is None else command)) + " r app-debug.apk assets/1000025.zip META-INF/CERT.SF META-INF/MANIFEST.MF")
         haxe_Log.trace(("clear apk file:" + ("null" if clear is None else clear)),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 34, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
         Sys.command(clear)
         update = (((((("cd \"" + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk\"") + " && ") + ("null" if command is None else command)) + " a app-debug.apk ") + ("null" if file is None else file))
         haxe_Log.trace(("update apk file:" + ("null" if update is None else update)),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 37, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
         Sys.command(update)
-        sign = ((((("cd \"" + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk\"") + " && ") + ("null" if signCommand is None else signCommand)) + " -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore debug.keystore -storepass 123456 -keypass 123456 app-debug.apk demo -signedjar app-debug-signed.apk")
-        haxe_Log.trace(("签名:" + ("null" if sign is None else sign)),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 47, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
+        sign = (((("cd \"" + HxOverrides.stringOrNull(Main.mgc_tools_dir)) + "/apk\"") + " && ") + "java -jar apksigner.jar sign --ks-pass pass:123456  --ks debug.keystore --ks-key-alias demo app-debug.apk ")
+        haxe_Log.trace(("签名:" + ("null" if sign is None else sign)),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 45, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
         Sys.command(sign)
-        sys_io_File.copy((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/app-debug-signed.apk"),(HxOverrides.stringOrNull(Main.mgcdict) + "/debug.apk"))
-        sys_FileSystem.deleteFile((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/app-debug-signed.apk"))
+        sys_io_File.copy((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/app-debug.apk"),(HxOverrides.stringOrNull(Main.mgcdict) + "/debug.apk"))
         python_FileUtils.removeDic((HxOverrides.stringOrNull(Main.mgc_tools_dir) + "/apk/assets"))
-        haxe_Log.trace((("- 编译结束 -\nAPK包目录：" + HxOverrides.stringOrNull(Main.mgcdict)) + "/debug.apk"),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 52, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
+        haxe_Log.trace((("- 编译结束 -\nAPK包目录：" + HxOverrides.stringOrNull(Main.mgcdict)) + "/debug.apk"),_hx_AnonObject({'fileName': "src/build/AndroidApkBuild.hx", 'lineNumber': 49, 'className': "build.AndroidApkBuild", 'methodName': "aapt"}))
 build_AndroidApkBuild._hx_class = build_AndroidApkBuild
 _hx_classes["build.AndroidApkBuild"] = build_AndroidApkBuild
 
