@@ -1392,7 +1392,11 @@ class build_JsBuild:
         dir = HxString.substr(buildto,0,_hx_len)
         if (not sys_FileSystem.exists(dir)):
             python_FileUtils.createDir(dir)
-        sys_io_File.saveContent(buildto,(((("define(\"" + ("null" if fileName is None else fileName)) + "\", function(require, module, exports, process) {\n") + ("null" if data is None else data)) + "\n})"))
+        startIndex = None
+        if (((data.find("define(") if ((startIndex is None)) else HxString.indexOfImpl(data,"define(",startIndex))) == 0):
+            sys_io_File.saveContent(buildto,data)
+        else:
+            sys_io_File.saveContent(buildto,(((("define(\"" + ("null" if fileName is None else fileName)) + "\", function(require, module, exports, process) {\n") + ("null" if data is None else data)) + "\n})"))
 build_JsBuild._hx_class = build_JsBuild
 _hx_classes["build.JsBuild"] = build_JsBuild
 

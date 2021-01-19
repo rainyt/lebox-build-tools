@@ -23,7 +23,12 @@ class JsBuild {
 		if (!FileSystem.exists(dir)) {
 			FileUtils.createDir(dir);
 		}
-		File.saveContent(buildto, 'define("' + fileName + '", function(require, module, exports, process) {\n' + data + "\n})");
+		if(data.indexOf("define(") == 0){
+			File.saveContent(buildto, data);
+		}
+		else{
+			File.saveContent(buildto, 'define("' + fileName + '", function(require, module, exports, process) {\n' + data + "\n})");
+		}
 	}
 }
 
