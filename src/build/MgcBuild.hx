@@ -26,7 +26,8 @@ class MgcBuild {
 		for (str in packageFiles) {
 			Reflect.setProperty(packageFilesObject, str, true);
 		}
-        serviceConfig = StringTools.replace(serviceConfig, "::PACKAGE_FILES::", Json.stringify(packageFilesObject));
-        File.saveContent(buildgo + "/__leto__/service-config.js",serviceConfig);
+		serviceConfig = StringTools.replace(serviceConfig, "::PACKAGE_FILES::", Json.stringify(packageFilesObject));
+		serviceConfig = StringTools.replace(serviceConfig, "::DEBUG::", Sys.args().indexOf("release") != -1 ? "false" : "true");
+		File.saveContent(buildgo + "/__leto__/service-config.js", serviceConfig);
 	}
 }

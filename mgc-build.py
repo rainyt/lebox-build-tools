@@ -1438,6 +1438,7 @@ class build_MgcBuild:
             _g = (_g + 1)
             Reflect.setProperty(packageFilesObject,_hx_str,True)
         serviceConfig = StringTools.replace(serviceConfig,"::PACKAGE_FILES::",haxe_format_JsonPrinter.print(packageFilesObject,None,None))
+        serviceConfig = StringTools.replace(serviceConfig,"::DEBUG::",("false" if ((python_internal_ArrayImpl.indexOf(Sys.args(),"release",None) != -1)) else "true"))
         sys_io_File.saveContent((("null" if buildgo is None else buildgo) + "/__leto__/service-config.js"),serviceConfig)
 build_MgcBuild._hx_class = build_MgcBuild
 _hx_classes["build.MgcBuild"] = build_MgcBuild

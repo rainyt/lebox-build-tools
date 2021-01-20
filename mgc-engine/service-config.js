@@ -1,7 +1,7 @@
 var __wxConfig__ = {
-	"debug": true,
+	"debug": ::DEBUG::,
 	"babel": true,
-	"enable_log": true,
+	"enable_log": ::DEBUG::,
 	"game_id": "",
 	"game_version": "",
 	"appid": "miaoxiaojiangdehuihua",
