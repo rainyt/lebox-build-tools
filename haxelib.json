@@ -1,0 +1,14 @@
+{
+  "name": "lebox-build-tools",
+  "url": "",
+  "license": "MIT",
+  "tags": [],
+  "description": "",
+  "version": "1.0.0",
+  "releasenote": "用于编译梦工厂小游戏包使用，编译梦工厂时，会自动生成出debug.apk文件",
+  "contributors": [""],
+  "dependencies": {
+
+  },
+  "classPath":"src"
+}

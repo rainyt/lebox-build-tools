@@ -1018,22 +1018,22 @@ class Main:
         _this = Main.mgc_tools_dir
         _this1 = Main.mgc_tools_dir
         _hx_str = ("\\" if (Main.isWindow) else "/")
-        startIndex1 = None
+        startIndex = None
         _hx_len = None
-        if (startIndex1 is None):
+        if (startIndex is None):
             _hx_len = _this1.rfind(_hx_str, 0, len(_this1))
         elif (_hx_str == ""):
             length = len(_this1)
-            if (startIndex1 < 0):
-                startIndex1 = (length + startIndex1)
-                if (startIndex1 < 0):
-                    startIndex1 = 0
-            _hx_len = (length if ((startIndex1 > length)) else startIndex1)
+            if (startIndex < 0):
+                startIndex = (length + startIndex)
+                if (startIndex < 0):
+                    startIndex = 0
+            _hx_len = (length if ((startIndex > length)) else startIndex)
         else:
-            i = _this1.rfind(_hx_str, 0, (startIndex1 + 1))
-            startLeft = (max(0,((startIndex1 + 1) - len(_hx_str))) if ((i == -1)) else (i + 1))
+            i = _this1.rfind(_hx_str, 0, (startIndex + 1))
+            startLeft = (max(0,((startIndex + 1) - len(_hx_str))) if ((i == -1)) else (i + 1))
             check = _this1.find(_hx_str, startLeft, len(_this1))
-            _hx_len = (check if (((check > i) and ((check <= startIndex1)))) else i)
+            _hx_len = (check if (((check > i) and ((check <= startIndex)))) else i)
         Main.mgc_tools_dir = HxString.substr(_this,0,_hx_len)
         Main.mgc_build_dir = (args[0] if 0 < len(args) else None)
         if ((args[1] if 1 < len(args) else None) is not None):
@@ -1106,15 +1106,15 @@ class Main:
                 value = _g1_value
                 Main.buildFile(((("null" if file is None else file) + "/") + ("null" if value is None else value)),((("null" if buildto is None else buildto) + "/") + ("null" if value is None else value)))
             return
-        startIndex1 = None
+        startIndex = None
         pos = None
-        if (startIndex1 is None):
+        if (startIndex is None):
             pos = file.rfind(".", 0, len(file))
         else:
-            i = file.rfind(".", 0, (startIndex1 + 1))
-            startLeft = (max(0,((startIndex1 + 1) - len("."))) if ((i == -1)) else (i + 1))
+            i = file.rfind(".", 0, (startIndex + 1))
+            startLeft = (max(0,((startIndex + 1) - len("."))) if ((i == -1)) else (i + 1))
             check = file.find(".", startLeft, len(file))
-            pos = (check if (((check > i) and ((check <= startIndex1)))) else i)
+            pos = (check if (((check > i) and ((check <= startIndex)))) else i)
         ext = HxString.substr(file,(pos + 1),None)
         fileName = StringTools.replace(file,(HxOverrides.stringOrNull(Main.mgc_build_dir) + "/"),"")
         _this = build_MgcBuild.packageFiles
@@ -1380,15 +1380,15 @@ class build_JsBuild:
         data = (Main.platformBuild.build(file,root) if ((Main.platformBuild is not None)) else sys_io_File.getContent(file))
         if (data is None):
             data = sys_io_File.getContent(file)
-        startIndex1 = None
+        startIndex = None
         _hx_len = None
-        if (startIndex1 is None):
+        if (startIndex is None):
             _hx_len = buildto.rfind("/", 0, len(buildto))
         else:
-            i = buildto.rfind("/", 0, (startIndex1 + 1))
-            startLeft = (max(0,((startIndex1 + 1) - len("/"))) if ((i == -1)) else (i + 1))
+            i = buildto.rfind("/", 0, (startIndex + 1))
+            startLeft = (max(0,((startIndex + 1) - len("/"))) if ((i == -1)) else (i + 1))
             check = buildto.find("/", startLeft, len(buildto))
-            _hx_len = (check if (((check > i) and ((check <= startIndex1)))) else i)
+            _hx_len = (check if (((check > i) and ((check <= startIndex)))) else i)
         dir = HxString.substr(buildto,0,_hx_len)
         if (not sys_FileSystem.exists(dir)):
             python_FileUtils.createDir(dir)
@@ -1807,15 +1807,15 @@ class platform_Zygameui(build_JsBuildBase):
         if (((file.find(_hx_str) if ((startIndex is None)) else HxString.indexOfImpl(file,_hx_str,startIndex))) != -1):
             content = sys_io_File.getContent(file)
             webpath = content
-            startIndex1 = None
+            startIndex = None
             pos = None
-            if (startIndex1 is None):
+            if (startIndex is None):
                 pos = content.rfind("lime.lime.embed(\"", 0, len(content))
             else:
-                i = content.rfind("lime.lime.embed(\"", 0, (startIndex1 + 1))
-                startLeft = (max(0,((startIndex1 + 1) - len("lime.lime.embed(\""))) if ((i == -1)) else (i + 1))
+                i = content.rfind("lime.lime.embed(\"", 0, (startIndex + 1))
+                startLeft = (max(0,((startIndex + 1) - len("lime.lime.embed(\""))) if ((i == -1)) else (i + 1))
                 check = content.find("lime.lime.embed(\"", startLeft, len(content))
-                pos = (check if (((check > i) and ((check <= startIndex1)))) else i)
+                pos = (check if (((check > i) and ((check <= startIndex)))) else i)
             content = HxString.substr(content,(pos + len("lime.lime.embed(\"")),None)
             startIndex = None
             content = HxString.substr(content,0,(content.find("\"") if ((startIndex is None)) else HxString.indexOfImpl(content,"\"",startIndex)))
